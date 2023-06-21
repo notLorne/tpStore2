@@ -1,0 +1,32 @@
+TABLE CLIENT
+	- ID_client
+	- courriel
+	- password
+	- table paiement LATER.
+
+TABLE PRODUITS
+	- ID_produit
+    - name
+    - category
+    - price
+    - material
+    - gemstone
+    - carat
+    - image_url
+	
+TABLE_PANIER (avant dacheter)
+	- Date creation
+	- ID_client
+	- ID_achat
+
+TABLE_ACHAT (facture)
+	- ID_achat
+	- ID_produit
+	- Quantite
+	- prix_achat
+	- paye
+	
+TABLE_COMMANDE (total des factures dun client) (many to many => plusieurs clients ont plusieurs achats)
+	ID_client
+	ID_achat
+	
