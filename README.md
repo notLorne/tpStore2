@@ -1,4 +1,5 @@
 #PRENEZ NOTE
+
     Extension VSC MySql v6.5.5 pratique pour pas aller dans DBeaver constament
     J'ai npm un mysql && npm i mysql2 pareil mais sans problème connection pour moi (et surement pour vous aussi)
 
