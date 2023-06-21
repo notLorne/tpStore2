@@ -3,30 +3,30 @@
     Extension VSC MySql v6.5.5 pratique pour pas aller dans DBeaver constament
     J'ai npm un mysql && npm i mysql2 pareil mais sans problème connection pour moi (et surement pour vous aussi)
 
-#GIT INSTRUCTIONS
+#GIT INSTRUCTIONS FOR UPDATE FROM MAIN
 
-FROM TERMINAL:
+    FROM TERMINAL:
 
-step 1:
-Ensure that you have the latest changes from the main branch by running the following commands in the terminal:
-
-git checkout main
-
-git pull origin main
-
-step 2:
-Switch to the branch you want to sync with the main branch by running the following command:
-git checkout branch-name
-
-"branch-name" = isabelle_branch, mathieu_branch, jospeh_branch
-
-step 3:
-Merge the changes from the main branch into your branch by running the following command:
-git merge main
-
-step 4:
-Push the updated branch to GitHub by running the following command:
-git push origin <branch-name>
+    step 1:
+    Ensure that you have the latest changes from the main branch by running the following commands in the terminal:
+    
+    git checkout main
+    
+    git pull origin main
+    
+    step 2:
+    Switch to the branch you want to sync with the main branch by running the following command:
+    git checkout branch-name
+    
+    "branch-name" = isabelle_branch, mathieu_branch, jospeh_branch
+    
+    step 3:
+    Merge the changes from the main branch into your branch by running the following command:
+    git merge main
+    
+    step 4:
+    Push the updated branch to GitHub by running the following command:
+    git push origin <branch-name>
 
 #LANCER L'APPLICATION
 
