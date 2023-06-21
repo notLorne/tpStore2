@@ -12,9 +12,9 @@ app.listen(port, () => {
 
 const connection = mysql.createConnection({
   host: 'localhost',
-  user: 'root',
-  password: 'MySQL181',
-  database: 'labo2'
+  user: 'tp_account_1',
+  password: 'test',
+  database: 'db_store'
 });
 
 app.get('/mysql', (req, res) => {
