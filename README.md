@@ -6,12 +6,14 @@
 #GIT INSTRUCTIONS
 
 FROM TERMINAL:
+
 step 1:
 Ensure that you have the latest changes from the main branch by running the following commands in the terminal:
 
 git checkout main
 
 git pull origin main
+
 step 2:
 Switch to the branch you want to sync with the main branch by running the following command:
 git checkout branch-name
