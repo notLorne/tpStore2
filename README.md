@@ -11,8 +11,7 @@ git checkout main
 git pull origin main
 
 Switch to the branch you want to sync with the main branch by running the following command:
-git checkout branch-name
-
+git checkout branch-name\n
 "branch-name" = isabelle_branch, mathieu_branch, jospeh_branch
 
 Merge the changes from the main branch into your branch by running the following command:
