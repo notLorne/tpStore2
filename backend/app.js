@@ -4,6 +4,7 @@ const express = require('express');
 const mysql = require('mysql');
 const app = express();
 const port = 3000;
+const path = require('path');
 const ejs = require('ejs');
 
 const connection = mysql.createConnection({
@@ -77,16 +78,16 @@ const createProduitCommandeTable = `
 const insertProduits = `
   INSERT INTO produits (nom, categorie, prix, materiel, pierre, carat, image_url)
   VALUES
-    ('Collier en diamant', 'Collier', 1500, 'Or blanc 18 carats', 'Diamant', 1.5, 'webpage'),
-    ('Bague en rubis', 'Bague', 800, 'Or jaune 14 carats', 'Rubis', 0.75, 'webpage'),
-    ('Boucles d''oreilles en émeraude', 'Boucles d''oreilles', 1200, 'Platine', 'Émeraude', 1.0, 'webpage'),
-    ('Bracelet en saphir', 'Bracelet', 1800, 'Argent sterling', 'Saphir', 2.0, 'webpage'),
-    ('Pendentif en améthyste', 'Pendentif', 400, 'Or rose 10 carats', 'Améthyste', 0.5, 'webpage'),
-    ('Boucles d''oreilles en perle', 'Boucles d''oreilles', 250, 'Argent sterling', 'Perle', NULL, 'webpage'),
-    ('Bague en topaze', 'Bague', 350, 'Or blanc 10 carats', 'Topaze', 1.25, 'webpage'),
-    ('Bracelet en grenat', 'Bracelet', 500, 'Argent', 'Grenat', 0.75, 'webpage'),
-    ('Collier en opale', 'Collier', 900, 'Or blanc 14 carats', 'Opale', 1.8, 'webpage'),
-    ('Boucles d''oreilles en citrine', 'Boucles d''oreilles', 300, 'Or jaune', 'Citrine', 1.5, 'webpage');
+    ('Collier en diamant', 'Collier', 1500, 'Or blanc 18 carats', 'Diamant', 1.5, '/assets/1_collier_diamand.jpg'),
+    ('Bague en rubis', 'Bague', 800, 'Or jaune 14 carats', 'Rubis', 0.75, '/assets/2_bague_rubis.jpg'),
+    ('Boucles d''oreilles en émeraude', 'Boucles d''oreilles', 1200, 'Platine', 'Émeraude', 1.0, '/assets/3_boucle_emeraud.jpg'),
+    ('Bracelet en saphir', 'Bracelet', 1800, 'Argent sterling', 'Saphir', 2.0, '/assets/4_bracelet_saphyr.jpg'),
+    ('Pendentif en améthyste', 'Pendentif', 400, 'Or rose 10 carats', 'Améthyste', 0.5, '/assets/5_pendantif_amethyst.jpg'),
+    ('Boucles d''oreilles en perle', 'Boucles d''oreilles', 250, 'Argent sterling', 'Perle', NULL, '/assets/6_boucle_perle.jpg'),
+    ('Bague en topaze', 'Bague', 350, 'Or blanc 10 carats', 'Topaze', 1.25, '/assets/7_bague_topaze.jpg'),
+    ('Bracelet en grenat', 'Bracelet', 500, 'Argent', 'Grenat', 0.75, '/assets/8_bracelet_grenat.jpg'),
+    ('Collier en opale', 'Collier', 900, 'Or blanc 14 carats', 'Opale', 1.8, '/assets/9_collierOpale.jpg'),
+    ('Boucles d''oreilles en citrine', 'Boucles d''oreilles', 300, 'Or jaune', 'Citrine', 1.5, '/assets/10_citrine.jpg');
 `;
 
 //METHODS
@@ -97,17 +98,19 @@ app.listen(port, (res, req) => {
 });
 
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-app.get('/products', (req, res) => {
+
+app.get('/', (req, res) => {
   // Retrieve data from the MySQL database
   connection.query('SELECT * FROM produits', (err, rows) => {
     if (err) {
       console.error('Error executing the query: ', err);
       return res.status(500).send('Internal Server Error');
     }
-
-    // Render the 'products' view with the retrieved data
-    res.render('products', { products: rows });
+    // Render the 'index' view with the retrieved data
+    res.render('index', { produits: rows });
   });
 });
 
@@ -170,15 +173,10 @@ function createDBTable() {
       if (err) throw err;
       console.log("TABLE Produit/commandes créée");
       });
-
-    connection.end((err) => {
-      if (err) {
-        console.error('Error closing the database connection: ', err);
-        return;
-      }
-      console.log('Connection closed.');
-    });
   });
 }
+
+function userConnection() {}
+
 
 createDBTable();
