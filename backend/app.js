@@ -4,6 +4,8 @@ const express = require('express');
 const mysql = require('mysql');
 const app = express();
 const port = 3000;
+const ejs = require('ejs');
+
 const connection = mysql.createConnection({
   host: 'localhost',
   port: 3306,
@@ -26,6 +28,7 @@ const useSchemaQuery = 'USE db_store;';
 const createClientsTable = `
   CREATE TABLE clients (
     id_client INT AUTO_INCREMENT,
+    paypalId VARCHAR(128),
     nom VARCHAR(255),
     prenom VARCHAR(255),
     courriel VARCHAR(255),
@@ -93,6 +96,21 @@ app.listen(port, (res, req) => {
   console.log(req);
 });
 
+app.set('view engine', 'ejs');
+
+app.get('/products', (req, res) => {
+  // Retrieve data from the MySQL database
+  connection.query('SELECT * FROM produits', (err, rows) => {
+    if (err) {
+      console.error('Error executing the query: ', err);
+      return res.status(500).send('Internal Server Error');
+    }
+
+    // Render the 'products' view with the retrieved data
+    res.render('products', { products: rows });
+  });
+});
+
 function createDBTable() {
 
   connection.connect((err) => {
@@ -146,6 +164,11 @@ function createDBTable() {
     connection.query(createCommandeTable, function(err, result) {
       if (err) throw err;
       console.log("TABLE Produit créée");
+      });
+
+    connection.query(createProduitCommandeTable, function(err, result) {
+      if (err) throw err;
+      console.log("TABLE Produit/commandes créée");
       });
 
     connection.end((err) => {
