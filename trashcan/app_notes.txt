@@ -32,6 +32,28 @@
 
 // ********** POT DE CODE / COPY_PASTE **********
 
+document.addEventListener('click', async function(event) {
+  if (event.target.classList.contains('add-to-cart')) {
+    var productId = event.target.getAttribute('data-product-id');
+
+    try {
+      var response = await fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId: productId })
+      });
+
+      // Handle the response from the server if needed
+    } catch (error) {
+      // Handle any error that occurred during the request
+    }
+  }
+});
+
+
+
 // *** Peut être utile mais utiliser si necessaire ***
 // const bodyParser = require('body-parser');
 // app.use(bodyParser.urlencoded({ extended: true }));

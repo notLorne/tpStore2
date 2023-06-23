@@ -1,11 +1,16 @@
 //CONSTANTS
 
 const express = require('express');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const uuid = require('uuid');
 const mysql = require('mysql');
 const app = express();
-const port = 3000;
 const path = require('path');
 const ejs = require('ejs');
+
+const secret = uuid.v4();
+const port = 3000;
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -22,8 +27,7 @@ let isDBloaded = false;
 //TABLES DEFINITIONS
 
 //First time run delete and create and use new schema
-const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';
-const createSchemaQuery = 'CREATE SCHEMA db_store;';
+const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';const createSchemaQuery = 'CREATE SCHEMA db_store;';
 const useSchemaQuery = 'USE db_store;';
 
 const createClientsTable = `
@@ -90,7 +94,7 @@ const insertProduits = `
     ('Boucles d''oreilles en citrine', 'Boucles d''oreilles', 300, 'Or jaune', 'Citrine', 1.5, '/assets/10_citrine.jpg');
 `;
 
-//METHODS
+//ROUTES CONFIGURATION
 
 app.listen(port, (res, req) => {
   console.log(`Serveur express sur le port ${port}`);
@@ -101,18 +105,58 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
+app.use(bodyParser.json());
+
+app.use(session({
+  secret: secret,
+  resave: false,
+  saveUninitialized: true
+}));
+
+app.use((req, res, next) => {
+  console.log('Session ID:', req.session.id);
+  next();
+});
+
+//ROUTES
 
 app.get('/', (req, res) => {
-  // Retrieve data from the MySQL database
+  if (!req.session.cart) {
+    req.session.cart = [];
+  }
+
   connection.query('SELECT * FROM produits', (err, rows) => {
     if (err) {
       console.error('Error executing the query: ', err);
       return res.status(500).send('Internal Server Error');
     }
-    // Render the 'index' view with the retrieved data
-    res.render('index', { produits: rows });
+
+    const cart = req.session.cart; // Get the cart from the session
+
+    res.render('index', { produits: rows, cart: cart }); // Pass the cart variable to the EJS template
   });
 });
+
+app.post('/subscribe');
+
+app.post('/login');
+
+app.post('/cart/add', function(req, res) {
+  const { id_produit, quantity } = req.body;
+
+  // Perform any necessary validation or checks on the received data
+
+  const cart = req.session.cart || [];
+  cart.push({ id_produit, quantity });
+  req.session.cart = cart;
+
+  console.log('Cart:', cart); // Log the content of the cart
+
+  res.send('Item added to cart');
+});
+
+
+//FUNCTIONS
 
 function createDBTable() {
 
@@ -178,5 +222,6 @@ function createDBTable() {
 
 function userConnection() {}
 
+//CONTROL FLOW
 
 createDBTable();

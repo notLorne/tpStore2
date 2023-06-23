@@ -52,9 +52,9 @@
 <body>
   <button id="signupButton">S'inscrire</button>
   <button id="loginButton">Se connecter</button>
-  <button id="cartButton">Open Shopping Cart</button>
+  <button id="cartButton">Panier</button>
 
-  <!-- Signup Modal -->
+  <!-- Modal Inscription -->
   <div id="signupModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -84,7 +84,7 @@
     </div>
   </div>
 
-  <!-- Login Modal -->
+  <!-- Modal Se connecter -->
   <div id="loginModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -110,14 +110,26 @@
   <div id="cartModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
-
-      <!-- Add your shopping cart content here -->
+  
       <h2>Shopping Cart</h2>
-      <!-- Add your shopping cart HTML structure and content here -->
+  
+      <!-- Display cart items dynamically -->
+      <% if (cart && cart.length > 0) { %>
+        <ul>
+          <% cart.forEach(function(item) { %>
+            <li>
+              <strong>Product ID:</strong> <%= item.id_produit %>
+              <br>
+              <strong>Quantity:</strong> <%= item.quantity %>
+            </li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p>Your cart is empty.</p>
+      <% } %>
     </div>
   </div>
-
-  <!-- JavaScript code -->
+  
   <script>
     const signupModal = document.getElementById('signupModal');
     const signupButton = document.getElementById('signupButton');
@@ -127,30 +139,21 @@
     const cartButton = document.getElementById('cartButton');
     const closeSpans = document.getElementsByClassName('close');
 
-    // Function to open the signup modal
     signupButton.addEventListener('click', () => {
       signupModal.style.display = 'block';
     });
-
-    // Function to open the login modal
     loginButton.addEventListener('click', () => {
       loginModal.style.display = 'block';
     });
-
-    // Function to open the cart modal
     cartButton.addEventListener('click', () => {
       cartModal.style.display = 'block';
     });
-
-    // Function to close any modal when the close button is clicked
     for (let i = 0; i < closeSpans.length; i++) {
       closeSpans[i].addEventListener('click', () => {
         const modal = closeSpans[i].closest('.modal');
         modal.style.display = 'none';
       });
     }
-
-    // Function to close any modal when clicking outside the modal content
     window.addEventListener('click', (event) => {
       if (event.target.classList.contains('modal')) {
         event.target.style.display = 'none';
@@ -165,9 +168,8 @@
 
   <h1>MAGASIN DE BIJOUX</h1>
 
-  <div></div>
-
-  <div></div>
+  <br>
+  <br>
 
   <h1>Liste des produits</h1>
 
@@ -184,13 +186,49 @@
           Matériau: <%= produits[j].materiel %><br>
           Pierre précieuse: <%= produits[j].pierre %><br>
           Carat: <%= produits[j].carat %><br>
-          <input type="number" name="quantity" min="0" value="0" style="width: 30px;">
-          <button>Add to Cart</button>
+          <input type="number" name="quantity-<%= produits[j].id_produit %>" min="0" value="0" style="width: 30px;">
+          <button class="add-to-cart" data-product-id="<%= produits[j].id_produit %>">Ajouter au panier</button>
         </td>
       <% } %>
     </tr>
     <% } %>
   </table>
-  
+
+  <script>
+
+document.addEventListener('click', async function(event) {
+  if (event.target.classList.contains('add-to-cart')) {
+    var button = event.target;
+    var productId = button.dataset.productId;
+    var quantityInput = button.parentNode.querySelector('input[type="number"]');
+    var quantity = parseInt(quantityInput.value);
+
+    // Perform validation or additional checks if needed
+    if (quantity > 0) {
+      try {
+        var response = await fetch('/cart/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id_produit: productId, quantity: quantity })
+        });
+
+        if (response.ok) {
+          // Handle the response from the server if needed
+        } else {
+          console.error('Error adding item to cart');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  }
+});
+
+
+  </script>
+
 </body>
+
 </html>
