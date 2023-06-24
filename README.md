@@ -1,7 +1,7 @@
 #PRENEZ NOTE
 
-    Extension VSC MySql v6.5.5 pratique pour pas aller dans DBeaver constament
-    J'ai npm un mysql && npm i mysql2 pareil mais sans problème connection pour moi (et surement pour vous aussi).
+    Début d'intégration du paiment Paypal dans index.js->cartModal
+        For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="d3NAG6#|" for approval
 
 #GIT INSTRUCTIONS FOR UPDATE FROM MAIN
 
@@ -69,36 +69,6 @@
     et ce, même lorsqu’on rafraichit la page (concept de session).
 
 #MODÈLE CONCEPTUEL DES DONNÉES (TABLES SQL ET +)
-
-    TABLE Client
-        - id_client
-        - nom
-        - prenom
-        - courriel
-        - password
-
-    TABLE Produit
-        - id_produit
-        - nom
-        - categorie
-        - prix
-        - materiel
-        - gemstone
-        - carat
-        - image_url
-
-    TABLE_Commande
-        - id_commande
-        - id_client
-        - id_produit
-        - date
-        
-    Régles de gestion (Expliquer en mots) 
-        R1 [Client] et [Produit] sont des tables primaires/brutes (exemple)
-        R2 ...
-
-    Questions
-        Comment on modélise la quantite de produit X acheté dans une commande?
 
 #NOTES IMPLANTATION
 

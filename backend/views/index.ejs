@@ -197,6 +197,19 @@
         <% } else { %>
         <p>Your cart is empty.</p>
         <% } %>
+
+        <!-- For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="d3NAG6#|" for approval -->
+        <script src="https://www.paypal.com/sdk/js?client-id=ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy"></script>
+        <br><br> 
+        <table>
+        <tr>
+          <td><label for="amount">Total</label></td>
+          <td><input type="number" id="amount"></td>
+          <td><div id="paypal" style="max-width:100px;"></div></td>
+        </tr>
+        </table>
+        <br><br>
+
     </div>
     </div>
 
@@ -229,6 +242,35 @@
         event.target.style.display = 'none';
         }
     });
+
+    // Paypal section
+    const amountElement = document.getElementById("amount");
+    paypal
+        .Buttons({
+            style: {
+                layout: 'horizontal',
+                color:  'gold',
+                shape:  'rect',
+                label:  'pay',     
+            },
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [
+                        {
+                            amount: {
+                                value: amountElement.value,
+                            },
+                        },
+                    ],
+                })
+            },
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (details){
+                    console.log("Transaction complétée par " + details.payer.name.given_name);                    
+                });
+            },
+        })
+        .render('#paypal');
     </script>
 
     <br>
