@@ -292,7 +292,7 @@
                     Carat: <%= produits[j].carat %><br>
                     Origine: <%= produits[j].origine %><br><br>
                     <input type="number" name="quantity-<%= produits[j].id_produit %>"min="0" value="0" style="width: 30px;">
-                    <button class="add-to-cart" data-product-id="<%= produits[j].id_produit %>" data-product-price="<%= produits[j].prix %>">Ajouter au panier</button>
+                    <button class="add-to-cart" data-product-id="<%= produits[j].id_produit %>" data-product-price="<%= produits[j].prix %>" onClick="window.location.reload();">Ajouter au panier</button>
                     </td>
                 <% } %>
                 </tr>

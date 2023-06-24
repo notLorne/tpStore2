@@ -75,8 +75,8 @@
     Rechercher to do dans le code pour trouver les choses à faire
     Si vous ajouter un to do indiquer le dans le code et dans le readme.md
 
-    1. window.reload() ou quelque chose du genre qunad on click sur modalCart pour avoir les dernier items ajoutés
-    2. Le modal cart / paypal pourrait être améliorer.
+    1. Le modal cart / paypal pourrait être améliorer visualement et aussi le <input type="number" ...> faudrait plus pouvoir jouer avec les flêches
+    3. <button class="add-to-cart" ... onClick="window.location.reload();"> voir si une autre manière de faire plus élégante
 
 #ENTÊTE
    
