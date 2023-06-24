@@ -1,5 +1,5 @@
 #PRENEZ NOTE
-    For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="d3NAG6#|" for approval
+    For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="paypal123" for approval
 
 #GIT INSTRUCTIONS FOR UPDATE FROM MAIN
 
