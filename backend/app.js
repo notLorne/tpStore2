@@ -23,10 +23,12 @@ const connection = mysql.createConnection({
 //VARIABLE
 
 let isDBloaded = false;
+let cart = [];
+let isLoggedIn = false;
 
 //TABLES DEFINITIONS
 
-//First time run delete and create and use new schema
+//DEL + CREATE + USE
 const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';const createSchemaQuery = 'CREATE SCHEMA db_store;';
 const useSchemaQuery = 'USE db_store;';
 
@@ -122,7 +124,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(session({
   secret: secret,
@@ -142,6 +144,9 @@ app.get('/', (req, res) => {
     req.session.cart = [];
   }
 
+  const isLoggedIn = req.session.isLoggedIn ? req.session.isLoggedIn : false;
+  const userEmail = req.session.userEmail ? req.session.userEmail : null;
+
   connection.query('SELECT * FROM produits', (err, rows) => {
     if (err) {
       console.error('Error executing the query: ', err);
@@ -150,19 +155,20 @@ app.get('/', (req, res) => {
 
     const cart = req.session.cart;
 
-    res.render('index', { produits: rows, cart: cart }); // Pass the cart variable to the EJS template
+    res.render('index', { produits: rows, cart: cart, isLoggedIn: isLoggedIn, userEmail: userEmail });
   });
 });
 
-app.post('/subscribe');
 
 app.post('/login', (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
+
+  console.log('Data received:', { email, password });
 
   // Query the database to check if the user exists
   connection.query(
     'SELECT * FROM clients WHERE courriel = ?',
-    [username],
+    [email],
     (err, results) => {
       if (err) {
         console.error('Error querying the database:', err);
@@ -170,9 +176,9 @@ app.post('/login', (req, res) => {
         return;
       }
 
-      // Check if a user was found with the given username
+      // Check if a user was found with the given email
       if (results.length === 0) {
-        res.status(401).send('Invalid username or password');
+        res.status(401).send('Invalid email or password');
         return;
       }
 
@@ -180,16 +186,46 @@ app.post('/login', (req, res) => {
 
       // Check if the password is correct
       if (client.password !== password) {
-        res.status(401).send('Invalid username or password');
+        res.status(401).send('Invalid email or password');
         return;
       }
 
       // Authentication successful
-      res.sendStatus(200);
-      res.render('index', { produits: rows, cart: cart });
+      console.log('Login successful:', client); // Log successful login with client information
+
+      // Update the status for the logged-in client
+      connection.query(
+        'UPDATE clients SET status = ? WHERE id_client = ?',
+        [true, client.id_client],
+        (err) => {
+          if (err) {
+            console.error('Error updating client status:', err);
+            res.sendStatus(500);
+            return;
+          }
+
+          // Status updated successfully
+          connection.query('SELECT * FROM produits', (err, rows) => {
+            if (err) {
+              console.error('Error executing the query:', err);
+              res.status(500).send('Internal Server Error');
+              return;
+            }
+
+            // Set the session variables for logged-in user
+            req.session.isLoggedIn = true;
+            req.session.userEmail = client.courriel;
+
+            // Render the index page with the updated rows and cart
+            const cart = req.session.cart;
+            res.render('index', { produits: rows, cart: cart, isLoggedIn: true, userEmail: client.courriel });
+          });
+        }
+      );
     }
   );
 });
+
 
 app.post('/cart/add', function(req, res) {
 

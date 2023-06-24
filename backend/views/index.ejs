@@ -115,13 +115,26 @@
     <img src="/assets/blingCover.jpg" alt="Bling Cover Image" style="width: 1150px; height: 400px;">
 </div>
 
+<div id="loginStatus" class="centered-elements">
+    <% if (isLoggedIn) { %>
+      Connected as <%= userEmail %>
+    <% } else { %>
+      Not logged in
+    <% } %>
+  </div>
+  
 <br>
 
 <div class="centered-buttons">
+    <% if (isLoggedIn) { %>
+      <button id="historyButton" class="button-style">Transactions</button>
+    <% } else { %>
+      <button id="loginButton" class="button-style">Se connecter</button>
+    <% } %>
     <button id="signupButton" class="button-style">S'inscrire</button>
-    <button id="loginButton" class="button-style">Se connecter</button>
     <button id="cartButton" class="button-style">Panier</button>
-</div>
+  </div>
+  
 
     <!-- Modal Inscription -->
     <div id="signupModal" class="modal">
@@ -213,6 +226,8 @@
     </div>
     </div>
 
+
+    
     <script>
     const signupModal = document.getElementById('signupModal');
     const signupButton = document.getElementById('signupButton');
