@@ -10,7 +10,7 @@ const path = require('path');
 const ejs = require('ejs');
 
 const secret = uuid.v4();
-const port = 3000;
+const port = 3002;
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -193,10 +193,10 @@ app.post('/login', (req, res) => {
 
 app.post('/cart/add', function(req, res) {
 
-  const { id_produit, quantity } = req.body;
+  const { id_produit, quantity, price} = req.body;
   const cart = req.session.cart ? req.session.cart : [];
 
-  cart.push({ id_produit, quantity });
+  cart.push({ id_produit, quantity, price });
   req.session.cart = cart;
 
   console.log('Cart:', cart); //TO REMOVE

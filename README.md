@@ -1,7 +1,5 @@
 #PRENEZ NOTE
-
-    Début d'intégration du paiment Paypal dans index.js->cartModal
-        For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="d3NAG6#|" for approval
+    For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="d3NAG6#|" for approval
 
 #GIT INSTRUCTIONS FOR UPDATE FROM MAIN
 
@@ -76,6 +74,9 @@
 
     Rechercher to do dans le code pour trouver les choses à faire
     Si vous ajouter un to do indiquer le dans le code et dans le readme.md
+
+    1. window.reload() ou quelque chose du genre qunad on click sur modalCart pour avoir les dernier items ajoutés
+    2. Le modal cart / paypal pourrait être améliorer.
 
 #ENTÊTE
    
