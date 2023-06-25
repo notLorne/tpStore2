@@ -1,5 +1,7 @@
 #PRENEZ NOTE
+
     For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="paypal123" for approval
+    ! La table ProduitCommande n'était pas nécessaire je l'ai enlever. J'ai modifié commande plutôt !
 
 #GIT INSTRUCTIONS FOR UPDATE FROM MAIN
 
@@ -72,16 +74,15 @@
 
 #TO DO
 
-    Rechercher to do dans le code pour trouver les choses à faire
     Si vous ajouter un to do indiquer le dans le code et dans le readme.md
+    TO REMOVE indique que ça doit être retirer avant la mise en prod
 
-    1. Ajouter les produits du cart dans la table Produit-Commande une fois payer, remettre le cart à 0, fermer le cartModal
-    2. Le modal cart / paypal pourrait être améliorer visualement et aussi le <input type="number" ...> faudrait plus pouvoir jouer avec les flêches
-    3. <button class="add-to-cart" ... onClick="window.location.reload();"> voir si une autre manière de faire plus élégante
+    1. Le modal cart / paypal pourrait être améliorer visualement et aussi le <input type="number" ...> pour le montant total faudrait plus pouvoir jouer avec les flêches 
+    2. <button class="add-to-cart" ... onClick="window.location.reload();"> voir si une autre manière de faire plus élégante
+    3. Éventuellement, ne plus détruire le BD au complet car on pert les commandes et les nouveaux clients
 
 #ENTÊTE
    
     Projet: Boutique Ahuntsic
     Codeurs: Joseph, Isabelle, Mathieu
     Cours : Programmation Web côté serveur (420-289-AH)
-    

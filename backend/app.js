@@ -79,21 +79,13 @@ const createCommandeTable = `
   CREATE TABLE Commande (
     id_commande INT AUTO_INCREMENT,
     id_client INT,
-    date_commande DATE,
-    PRIMARY KEY (id_commande),
-    FOREIGN KEY (id_client) REFERENCES clients (id_client)
-  );
-`;
-
-const createProduitCommandeTable = `
-  CREATE TABLE Produit_Commande (
-    id_produit_commande INT AUTO_INCREMENT,
     id_produit INT,
-    id_commande INT,
     quantite INT,
-    PRIMARY KEY (id_produit_commande),
-    FOREIGN KEY (id_produit) REFERENCES produits (id_produit),
-    FOREIGN KEY (id_commande) REFERENCES Commande (id_commande)
+    prix_unitaire DECIMAL(10,2),
+    date_commande DATETIME,
+    PRIMARY KEY (id_commande),
+    FOREIGN KEY (id_client) REFERENCES clients (id_client),
+    FOREIGN KEY (id_produit) REFERENCES produits (id_produit)
   );
 `;
 
@@ -162,6 +154,7 @@ app.get('/', (req, res) => {
 
 
 app.post('/login', (req, res) => {
+// app.post('/', (req, res) => {
   const { email, password } = req.body;
 
   console.log('Data received:', { email, password });
@@ -216,6 +209,7 @@ app.post('/login', (req, res) => {
             // Set the session variables for logged-in user
             req.session.isLoggedIn = true;
             req.session.userEmail = client.courriel;
+            req.session.clientId = client.id_client;
 
             // Render the index page with the updated rows and cart
             const cart = req.session.cart;
@@ -239,6 +233,45 @@ app.post('/cart/add', function(req, res) {
   console.log('Cart:', cart); //TO REMOVE
 
   res.send('Item added to cart');
+});
+
+
+app.post('/order', function(req, res) {
+  let insertCommande = "INSERT INTO Commande (id_client, id_produit, quantite, prix_unitaire, date_commande) VALUES ";  
+  const cart = req.session.cart;
+  if (!req.session.clientId) {
+    console.log("Pas de client actif!"); // Ne devrait pas arriver mais présentement on peut encore utiliser le cart sans faire de login TO REMOVE
+    res.statusCode = 401;
+    res.send('Pas de client actif!');
+  } else {
+    cart.forEach(function(item, idx, array){
+      if (idx + 1 === array.length){ 
+        insertCommande += `(${req.session.clientId}, ${item.id_produit}, ${item.quantity}, ${item.price}, now());`;
+      } else {
+        insertCommande += `(${req.session.clientId}, ${item.id_produit}, ${item.quantity}, ${item.price}, now()),`;
+      }
+    });  
+    console.log(insertCommande);
+    connection.query(insertCommande, (err, result) => {
+      if (err) throw err;
+      console.log('Commandes ajoutes');
+    });
+    res.send('Commandes ajoutes dans la BD');
+  }
+});
+
+app.delete('/cart', function(req, res) {
+  const { destroy } = req.body;
+  if (destroy == "all") {
+    req.session.cart =[];
+    console.log('Cart deleted'); //TO REMOVE
+    res.send('Cart deleted');
+  }  
+});
+
+
+app.get('/historique', (req, res) => {
+
 });
 
 //FUNCTIONS
@@ -301,12 +334,7 @@ function createDBTable() {
     
     connection.query(createCommandeTable, function(err, result) {
       if (err) throw err;
-      console.log("TABLE Produit créée");
-      });
-
-    connection.query(createProduitCommandeTable, function(err, result) {
-      if (err) throw err;
-      console.log("TABLE Produit/commandes créée");
+      console.log("TABLE Commande créée");
       });
   });
 }
