@@ -7,7 +7,6 @@
 </head>
 
 <style>
-
     .modal {
         display: none;
         position: fixed;
@@ -19,7 +18,6 @@
         overflow: auto;
         background-color: rgba(0, 0, 0, 0.5);
     }
-
     .modal-content {
         background-color: #fefefe;
         margin: 15% auto;
@@ -27,21 +25,18 @@
         border: 1px solid #888;
         width: 400px;
     }
-
     .close {
         color: #aaa;
         float: right;
         font-size: 28px;
         font-weight: bold;
     }
-
     .close:hover,
     .close:focus {
         color: black;
         text-decoration: none;
         cursor: pointer;
     }
-
     .product-image {
         width: 200px;
         height: 200px;
@@ -59,14 +54,11 @@
         justify-content: center;
         align-items: center;
     }
-
     .centered-buttons {
-
         display: flex;
         justify-content: center;
         align-items: center;
     }
-
     .button-style {
         padding: 10px 20px;
         background-color: #eaeaea;
@@ -74,18 +66,15 @@
         font-size: 32px;
         color: #333;
     }
-
     body {
         background-color: #28d6a2;
     }
-
     h1 {
         text-align: center;
         font-family: 'Roboto', sans-serif;
         font-size: 72px;
         animation: colorChange 5s infinite;
     }
-
     @keyframes colorChange {
         0% {
             color: red;
@@ -97,31 +86,41 @@
             color: rgb(255, 0, 0);
         }
     }
-
     h2 {
        
         text-align: center;
         font-family: 'Roboto', sans-serif;
         font-size: 24px;
         animation: colorChange 5s infinite;
-
     }
-
 </style>
 
 <body>
 
-    <div class="centered-elements">
-        <img src="/assets/blingCover.jpg" alt="Bling Cover Image" style="width: 1150px; height: 400px;">
-    </div>
+<div class="centered-elements">
+    <img src="/assets/blingCover.jpg" alt="Bling Cover Image" style="width: 1150px; height: 400px;">
+</div>
 
-    <br>
+<div id="loginStatus" class="centered-elements">
+    <% if (isLoggedIn) { %>
+      Connected as <%= userEmail %>
+    <% } else { %>
+      Not logged in
+    <% } %>
+  </div>
+  
+<br>
 
-    <div class="centered-buttons">
-        <button id="signupButton" class="button-style">S'inscrire</button>
-        <button id="loginButton" class="button-style">Se connecter</button>
-        <button id="cartButton" class="button-style">Panier</button>
-    </div>
+<div class="centered-buttons">
+    <% if (isLoggedIn) { %>
+      <button id="historyButton" class="button-style">Transactions</button>
+    <% } else { %>
+      <button id="loginButton" class="button-style">Se connecter</button>
+    <% } %>
+    <button id="signupButton" class="button-style">S'inscrire</button>
+    <button id="cartButton" class="button-style">Panier</button>
+  </div>
+  
 
     <!-- Modal Inscription -->
     <div id="signupModal" class="modal">
@@ -190,7 +189,7 @@
             <% cart.forEach(function(item) { %>
             <% total += item.price * item.quantity %>
             <li>
-                <strong>Produit ID:</strong> <%= item.id_produit %>
+ 				<strong>Produit ID:</strong> <%= item.id_produit %>
                 <br>
                 <strong>Quantité:</strong> <%= item.quantity %>
                 <br>
@@ -201,7 +200,7 @@
         <% } else { %>
         <p>Your cart is empty.</p>
         <% } %>
-        
+
         <!-- Paypal section 
              For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="paypal123" for approval rm! -->
         <script src="https://www.paypal.com/sdk/js?client-id=ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy"></script>
@@ -234,73 +233,75 @@
     </div>
     </div>
 
-    <script>
-        const signupModal = document.getElementById('signupModal');
-        const signupButton = document.getElementById('signupButton');
-        const loginModal = document.getElementById('loginModal');
-        const loginButton = document.getElementById('loginButton');
-        const cartModal = document.getElementById('cartModal');
-        const cartButton = document.getElementById('cartButton');
-        const closeSpans = document.getElementsByClassName('close');
 
-        signupButton.addEventListener('click', () => {
-            signupModal.style.display = 'block';
+    
+    <script>
+    const signupModal = document.getElementById('signupModal');
+    const signupButton = document.getElementById('signupButton');
+    const loginModal = document.getElementById('loginModal');
+    const loginButton = document.getElementById('loginButton');
+    const cartModal = document.getElementById('cartModal');
+    const cartButton = document.getElementById('cartButton');
+    const closeSpans = document.getElementsByClassName('close');
+    signupButton.addEventListener('click', () => {
+        signupModal.style.display = 'block';
+    });
+    loginButton.addEventListener('click', () => {
+        loginModal.style.display = 'block';
+    });
+    cartButton.addEventListener('click', () => {
+        cartModal.style.display = 'block';
+    });
+    for (let i = 0; i < closeSpans.length; i++) {
+        closeSpans[i].addEventListener('click', () => {
+        const modal = closeSpans[i].closest('.modal');
+        modal.style.display = 'none';
         });
-        loginButton.addEventListener('click', () => {
-            loginModal.style.display = 'block';
-        });
-        cartButton.addEventListener('click', () => {
-            cartModal.style.display = 'block';
-        });
-        for (let i = 0; i < closeSpans.length; i++) {
-            closeSpans[i].addEventListener('click', () => {
-            const modal = closeSpans[i].closest('.modal');
-            modal.style.display = 'none';
-            });
+    }
+    window.addEventListener('click', (event) => {
+        if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
         }
-        window.addEventListener('click', (event) => {
-            if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
-            }
-        });
+    });
     </script>
 
     <br>
     <br>
 
-    <div class="centered-elements">
-        <h1>Boutique Ahuntsic</h1>
-    </div>
+<div class="centered-elements">
+    <h1>Boutique Ahuntsic</h1>
+</div>
 
-    <div class="centered-elements">
-        <h2>Liste des produits</h2>
-    </div>
+<div class="centered-elements">
+    <h2>Liste des produits</h2>
+</div>
 
-    <div class="centered-elements">
-        <table>
-            <% for (var i = 0; i < produits.length; i += 5) { %>
-                <tr>
-                <% for (var j = i; j < Math.min(i + 5, produits.length); j++) { %>
-                    <td class="product-list-card">
-                    <img src="<%= produits[j].image_url %>" alt="Product Image" class="product-image">
-                    <br>
-                    <strong><%= produits[j].nom %></strong><br>
-                    Catégorie: <%= produits[j].categorie %><br>
-                    Prix: <%= produits[j].prix %><br>
-                    Matériau: <%= produits[j].materiel %><br>
-                    Pierre précieuse: <%= produits[j].pierre %><br>
-                    Carat: <%= produits[j].carat %><br>
-                    Origine: <%= produits[j].origine %><br><br>
-                    <input type="number" name="quantity-<%= produits[j].id_produit %>"min="0" value="0" style="width: 30px;">
-                    <button class="add-to-cart" data-product-id="<%= produits[j].id_produit %>" data-product-price="<%= produits[j].prix %>" onClick="window.location.reload();">Ajouter au panier</button>
-                    </td>
-                <% } %>
-                </tr>
+<div class="centered-elements">
+    <table>
+        <% for (var i = 0; i < produits.length; i += 5) { %>
+            <tr>
+            <% for (var j = i; j < Math.min(i + 5, produits.length); j++) { %>
+                <td class="product-list-card">
+                <img src="<%= produits[j].image_url %>" alt="Product Image" class="product-image">
+                <br>
+                <strong><%= produits[j].nom %></strong><br>
+                Catégorie: <%= produits[j].categorie %><br>
+                Prix: <%= produits[j].prix %><br>
+                Matériau: <%= produits[j].materiel %><br>
+                Pierre précieuse: <%= produits[j].pierre %><br>
+                Carat: <%= produits[j].carat %><br>
+                Origine: <%= produits[j].origine %><br><br>
+                <input type="number" name="quantity-<%= produits[j].id_produit %>"min="0" value="0" style="width: 30px;">
+                <button class="add-to-cart" data-product-id="<%= produits[j].id_produit %>" data-product-price="<%= produits[j].prix %>" onClick="window.location.reload();">Ajouter au panier</button>
+                </td>
             <% } %>
-        </table>
-    </div>
+            </tr>
+        <% } %>
+    </table>
+</div>
 
-    <script>
+
+<script>
         document.addEventListener('click', async function(event) {
         if (event.target.classList.contains('add-to-cart')) {
             var button = event.target;
@@ -336,4 +337,6 @@
     </script>
 
 </body>
+
 </html>
+
