@@ -1,7 +1,6 @@
 #PRENEZ NOTE
-
-    Extension VSC MySql v6.5.5 pratique pour pas aller dans DBeaver constament
-    J'ai npm un mysql && npm i mysql2 pareil mais sans problème connection pour moi (et surement pour vous aussi).
+    For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="paypal123" for approval
+    ! La table ProduitCommande n'était pas nécessaire je l'ai enlever. J'ai modifié commande plutôt !
 
 #GIT INSTRUCTIONS FOR UPDATE FROM MAIN
 
@@ -70,46 +69,19 @@
 
 #MODÈLE CONCEPTUEL DES DONNÉES (TABLES SQL ET +)
 
-    TABLE Client
-        - id_client
-        - nom
-        - prenom
-        - courriel
-        - password
-
-    TABLE Produit
-        - id_produit
-        - nom
-        - categorie
-        - prix
-        - materiel
-        - gemstone
-        - carat
-        - image_url
-
-    TABLE_Commande
-        - id_commande
-        - id_client
-        - id_produit
-        - date
-        
-    Régles de gestion (Expliquer en mots) 
-        R1 [Client] et [Produit] sont des tables primaires/brutes (exemple)
-        R2 ...
-
-    Questions
-        Comment on modélise la quantite de produit X acheté dans une commande?
-
 #NOTES IMPLANTATION
 
 #TO DO
 
-    Rechercher to do dans le code pour trouver les choses à faire
     Si vous ajouter un to do indiquer le dans le code et dans le readme.md
+    TO REMOVE indique que ça doit être retirer avant la mise en prod
+
+    1. Le modal cart / paypal pourrait être améliorer visualement et aussi le <input type="number" ...> pour le montant total faudrait plus pouvoir jouer avec les flêches 
+    2. <button class="add-to-cart" ... onClick="window.location.reload();"> voir si une autre manière de faire plus élégante
+    3. Éventuellement, ne plus détruire le BD au complet car on pert les commandes et les nouveaux clients
 
 #ENTÊTE
    
     Projet: Boutique Ahuntsic
     Codeurs: Joseph, Isabelle, Mathieu
     Cours : Programmation Web côté serveur (420-289-AH)
-    
