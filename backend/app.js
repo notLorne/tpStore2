@@ -20,7 +20,7 @@ const connection = mysql.createConnection({
   database: 'db_store'
 });
 
-//VARIABLE
+//VARIABLES
 
 let isDBloaded = false;
 let cart = [];
@@ -104,12 +104,11 @@ const insertProduits = `
     ('Boucles d''oreilles en citrine', 'Boucles d''oreilles', 300, 'Or jaune', 'Citrine', 1.5, 'Niger', '/assets/10_citrine.jpg');
 `;
 
-
-//ROUTES CONFIGURATION
+//MIDDLEWARES
 
 app.listen(port, (res, req) => {
   console.log(`Serveur express sur le port ${port}`);
-  console.log(req);
+  createDBTable();
 });
 
 app.set('view engine', 'ejs');
@@ -125,8 +124,7 @@ app.use(session({
   saveUninitialized: true
 }));
 
-app.use((req, res, next) => {
-  console.log('Session ID:', req.session.id);
+app.use((req, res, next) => { 
   next();
 });
 
@@ -142,8 +140,8 @@ app.get('/', (req, res) => {
 
   connection.query('SELECT * FROM produits', (err, rows) => {
     if (err) {
-      console.error('Error executing the query: ', err);
-      return res.status(500).send('Internal Server Error');
+      console.error("Impossible d'executer la requete : ", err);
+      return res.status(500).send("Erreur Interne");
     }
 
     const cart = req.session.cart;
@@ -152,66 +150,53 @@ app.get('/', (req, res) => {
   });
 });
 
-
 app.post('/login', (req, res) => {
-// app.post('/', (req, res) => {
+
   const { email, password } = req.body;
 
-  console.log('Data received:', { email, password });
-
-  // Query the database to check if the user exists
   connection.query(
     'SELECT * FROM clients WHERE courriel = ?',
     [email],
     (err, results) => {
       if (err) {
-        console.error('Error querying the database:', err);
+        console.error("Impossible de rejoindre la base de donnees : ", err);
         res.sendStatus(500);
         return;
       }
 
-      // Check if a user was found with the given email
       if (results.length === 0) {
-        res.status(401).send('Invalid email or password');
+        res.status(401).send('Mot de passe ou courriel invalide');
         return;
       }
 
       const client = results[0];
 
-      // Check if the password is correct
       if (client.password !== password) {
-        res.status(401).send('Invalid email or password');
+        res.status(401).send('Mot de passe ou courriel invalide');
         return;
       }
 
-      // Authentication successful
-      console.log('Login successful:', client); // Log successful login with client information
-
-      // Update the status for the logged-in client
       connection.query(
         'UPDATE clients SET status = ? WHERE id_client = ?',
         [true, client.id_client],
         (err) => {
           if (err) {
-            console.error('Error updating client status:', err);
+            console.error("Impossible de mettre a jour le compte client : ", err);
             res.sendStatus(500);
             return;
           }
 
-          // Status updated successfully
           connection.query('SELECT * FROM produits', (err, rows) => {
             if (err) {
-              console.error('Error executing the query:', err);
-              res.status(500).send('Internal Server Error');
+              console.error("Impossible d'executer la demande:", err);
+              res.status(500).send('Erreur de serveur.');
               return;
             }
 
-            // Set the session variables for logged-in user
             req.session.isLoggedIn = true;
             req.session.userEmail = client.courriel;
             req.session.clientId = client.id_client;
 
-            // Render the index page with the updated rows and cart
             const cart = req.session.cart;
             res.render('index', { produits: rows, cart: cart, isLoggedIn: true, userEmail: client.courriel });
           });
@@ -221,7 +206,6 @@ app.post('/login', (req, res) => {
   );
 });
 
-
 app.post('/cart/add', function(req, res) {
 
   const { id_produit, quantity, price} = req.body;
@@ -230,19 +214,15 @@ app.post('/cart/add', function(req, res) {
   cart.push({ id_produit, quantity, price });
   req.session.cart = cart;
 
-  console.log('Cart:', cart); //TO REMOVE
-
-  res.send('Item added to cart');
+  res.send('Item ajoute au panier.');
 });
-
 
 app.post('/order', function(req, res) {
   let insertCommande = "INSERT INTO Commande (id_client, id_produit, quantite, prix_unitaire, date_commande) VALUES ";  
   const cart = req.session.cart;
   if (!req.session.clientId) {
-    console.log("Pas de client actif!"); // Ne devrait pas arriver mais présentement on peut encore utiliser le cart sans faire de login TO REMOVE
     res.statusCode = 401;
-    res.send('Pas de client actif!');
+    res.send("SVP vous connecter ou vous inscrire.");
   } else {
     cart.forEach(function(item, idx, array){
       if (idx + 1 === array.length){ 
@@ -264,15 +244,45 @@ app.delete('/cart', function(req, res) {
   const { destroy } = req.body;
   if (destroy == "all") {
     req.session.cart =[];
-    console.log('Cart deleted'); //TO REMOVE
-    res.send('Cart deleted');
+    res.send('Panier efface');
   }  
 });
-
-
+ 
 app.get('/historique', (req, res) => {
 
 });
+
+
+app.post('/subscribe', (req, res) => {
+  const { prenom, nom, courriel, password } = req.body;
+
+  const query = 'INSERT INTO clients (prenom, nom, courriel, password) VALUES (?, ?, ?, ?)';
+  const values = [prenom, nom, courriel, password];
+
+  connection.query(query, values, (error, results) => {
+    if (error) {
+      console.error('Error inserting data:', error);
+      res.status(500).send('Internal Server Error');
+    } else {
+      console.log('Data inserted successfully');
+
+      const isLoggedIn = true;
+      const userEmail = courriel;
+      const cart = req.session.cart;
+
+      const productsQuery = 'SELECT * FROM produits';
+      connection.query(productsQuery, (error, rows) => {
+        if (error) {
+          console.error('Error retrieving products:', error);
+          res.status(500).send('Internal Server Error');
+        } else {
+          res.render('index', { produits: rows, cart, isLoggedIn, userEmail });
+        }
+      });
+    }
+  });
+});
+
 
 //FUNCTIONS
 
@@ -281,66 +291,53 @@ function createDBTable() {
   connection.connect((err) => {
 
     if (err) {
-      console.error('Error connecting to the database: ', err);
+      console.error('Erreur de connection a la base de donnees ', err);
       return;
     }
 
-    console.log('Connected to the database!');
+    console.log('Connexion reussie a la base de donnees!');
 
     // DEL + CREATE + USE
 
     connection.query(deleteSchemaQuery, (err) => {
       if (err) {
-        console.error('Error deleting schema:', err);
+        console.error('Impossible de supprimer le schema : ', err);
         return;
       }});
     
     connection.query(createSchemaQuery, (err) => {
       if (err) {
-        console.error('Error creating schema:', err);
+        console.error('Impossible de creer le schema :', err);
         return;
       }});
 
     connection.query(useSchemaQuery, (err) => {
       if (err) {
-        console.error('Error setting default schema:', err);
+        console.error('Impossible de definir le schema de base :', err);
         return;
       }});
-    
-    console.log('Default schema set to db_store');
-
-    // Create Tables
 
     connection.query(createClientsTable, function(err, result) {
       if (err) throw err;
-      console.log("TABLE Client créée");
     });
 
     connection.query(createClientAccounts, (err, result) => {
       if (err) throw err;
-      console.log('Clients ajoutes');
-
     });
 
     connection.query(createProduitsTable, function(err, result) {
       if (err) throw err;
-      console.log("TABLE Produit créée");
-      });
+    });
     
     connection.query(insertProduits, (err, result) => {
       if (err) throw err;
-      console.log('Produits ajoutes');
     });
     
     connection.query(createCommandeTable, function(err, result) {
       if (err) throw err;
-      console.log("TABLE Commande créée");
-      });
+    });
+    console.log("Initialisation de la base de donnees complete.")
   });
 }
 
-function userConnection() {}
 
-//CONTROL FLOW
-
-createDBTable();
