@@ -1,8 +1,8 @@
 #PRENEZ NOTE
 
     For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="paypal123" for approval
-    ! La table ProduitCommande n'était pas nécessaire je l'ai enlever. J'ai modifié commande plutôt !
-
+    Voir TO DO...
+ 
 #GIT INSTRUCTIONS FOR UPDATE FROM MAIN
 
     FROM TERMINAL:
@@ -78,8 +78,13 @@
     TO REMOVE indique que ça doit être retirer avant la mise en prod
 
     1. Le modal cart / paypal pourrait être améliorer visualement et aussi le <input type="number" ...> pour le montant total faudrait plus pouvoir jouer avec les flêches 
-    2. <button class="add-to-cart" ... onClick="window.location.reload();"> voir si une autre manière de faire plus élégante
-    3. Éventuellement, ne plus détruire le BD au complet car on pert les commandes et les nouveaux clients
+    2. Éventuellement, ne plus détruire le BD au complet car on pert les commandes et les nouveaux clients
+    3. Est-ce que status et paypalId nécessaire dans la table client
+    4. En modifiant app.js j'utilise plus le concept de variable de session alors si un client efface son cache il restera connecté quand même, est-ce OK?
+    5. Logout?
+    6. Question bonus?
+    7. Readme.md MODÈLE CONCEPTUEL DES DONNÉES est-ce que le développe ici on on retire la section
+    8. Relire le pdf du tp2 s'assurer qu'on répond bien à tout
 
 #ENTÊTE
    

@@ -7,7 +7,6 @@ const uuid = require('uuid');
 const mysql = require('mysql');
 const app = express();
 const path = require('path');
-const ejs = require('ejs');
 
 const secret = uuid.v4();
 const port = 3000;
@@ -20,13 +19,14 @@ const connection = mysql.createConnection({
   database: 'db_store'
 });
 
+const PAYPAL_ID = "ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy";
+
 //VARIABLES
 
-let isDBloaded = false;
 let cart = [];
 let isLoggedIn = false;
-let historique = [];
-const PAYPAL_ID = "ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy";
+let userEmail = "none";
+let idClient = "none";
 
 //TABLES DEFINITIONS
 
@@ -35,8 +35,8 @@ const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';
 const createSchemaQuery = 'CREATE SCHEMA db_store;';
 const useSchemaQuery = 'USE db_store;';
 
-const createClientsTable = `
-  CREATE TABLE clients (
+const createClientTable = `
+  CREATE TABLE client (
     id_client INT AUTO_INCREMENT,
     paypalId VARCHAR(128),
     nom VARCHAR(32),
@@ -49,7 +49,7 @@ const createClientsTable = `
 `;
 
 const createClientAccounts = `
-  INSERT INTO clients (paypalId, nom, prenom, courriel, password, status)
+  INSERT INTO client (paypalId, nom, prenom, courriel, password, status)
   VALUES
     ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Tremblay', 'Jean', 'email1@example.com', 'password1', FALSE),
     ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Gagnon', 'Marie', 'email2@example.com', 'password2', FALSE),
@@ -63,8 +63,8 @@ const createClientAccounts = `
     ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Bergeron', 'Cécile', 'email10@example.com', 'password10', FALSE);
 `;
 
-const createProduitsTable = `
-  CREATE TABLE produits (
+const createProduitTable = `
+  CREATE TABLE produit (
     id_produit INT AUTO_INCREMENT,
     nom VARCHAR(72),
     categorie VARCHAR(32),
@@ -79,7 +79,7 @@ const createProduitsTable = `
 `;
 
 const insertProduits = `
-  INSERT INTO produits (nom, categorie, prix, materiel, pierre, carat, origine, image_url)
+  INSERT INTO produit (nom, categorie, prix, materiel, pierre, carat, origine, image_url)
   VALUES
     ('Collier en diamant', 'Collier', 1500, 'Or blanc 18 carats', 'Diamant', 1.5, 'Burundi', '/assets/1_collier_diamand.jpg'),
     ('Bague en rubis', 'Bague', 800, 'Or jaune 14 carats', 'Rubis', 0.75, 'Malawi', '/assets/2_bague_rubis.jpg'),
@@ -102,12 +102,12 @@ const createCommandeTable = `
     prix_unitaire DECIMAL(10,2),
     date_commande DATETIME,
     PRIMARY KEY (id_commande),
-    FOREIGN KEY (id_client) REFERENCES clients (id_client),
-    FOREIGN KEY (id_produit) REFERENCES produits (id_produit)
+    FOREIGN KEY (id_client) REFERENCES client (id_client),
+    FOREIGN KEY (id_produit) REFERENCES produit (id_produit)
   );
 `;
 
-const insertCommande = `
+const insertCommandes = `
   INSERT INTO commande (id_client, id_produit, quantite, prix_unitaire, date_commande)
   VALUES 
     (1, 1, 1, 1500, now()),
@@ -143,58 +143,45 @@ app.use((req, res, next) => {
 //ROUTES
 
 app.get('/', (req, res) => {
-  if (!req.session.cart) {
-    req.session.cart = [];
-  }
-
-  const isLoggedIn = req.session.isLoggedIn ? req.session.isLoggedIn : false;
-  const userEmail = req.session.userEmail ? req.session.userEmail : null;
-  console.log(isLoggedIn); // TO REMOVE
-  console.log(userEmail); // TO REMOVE
   
-  connection.query('SELECT * FROM produits', (err, rows) => {
-    if (err) {
-      console.error("Impossible d'executer la demande:", err);
-      res.status(500).send('Erreur de serveur.');
+  connection.query('SELECT * FROM produit', (error, rows) => {
+    if (error) {
+      console.error("Impossible d'executer la demande:", error);
+      res.status(500).send('Erreur de serveur');
       return;
     }
 
-    const cart = req.session.cart;
-
-    // Bâtir l'historique
     const selectHistorique = `
       SELECT p.id_produit, p.nom, p.origine, c.quantite, c.prix_unitaire, c.date_commande, c.id_client
-      FROM produits p, commande c
+      FROM produit p, commande c
       WHERE p.id_produit = c.id_produit AND c.id_client = ?;
     `; 
 
-    connection.query(
-      selectHistorique,
-      [req.session.clientId],  
-      (err, histoire) => {
-        if (err) {
-        console.error("Impossible de bâtir l'historique:", err);
-        res.status(500).send("Erreur dans historique.");
+    connection.query( selectHistorique, [idClient],  
+      (error, histoire) => {
+        if (error) {
+          console.error("Erreur dans historique:", error);
+          res.status(500).send("Erreur dans historique");
         return;
         }
-  
-      console.log('Historique:', histoire); // TO REMOVE
-      res.render('index', { produits: rows, cart: cart, isLoggedIn: isLoggedIn, userEmail: userEmail, historique: histoire });
 
-    });
+        res.render('index', { produits: rows, cart: cart, isLoggedIn: isLoggedIn, userEmail: userEmail, historique: histoire });
+      }
+    );
   });
 });
 
 app.post('/login', (req, res) => {
 
-  const { email, password } = req.body;
+  const { email, passwordLog } = req.body;
 
   connection.query(
-    'SELECT * FROM clients WHERE courriel = ?',
+    'SELECT * FROM client WHERE courriel = ?',
     [email],
-    (err, results) => {
-      if (err) {
-        console.error("Impossible de rejoindre la base de donnees : ", err);
+    (error, results) => {
+      
+      if (error) {
+        console.error("Impossible de rejoindre la base de donnees : ", error);
         res.sendStatus(500);
         return;
       }
@@ -206,25 +193,24 @@ app.post('/login', (req, res) => {
 
       const client = results[0];
 
-      if (client.password !== password) {
+      if (client.password !== passwordLog) {
         res.status(401).send('Mot de passe ou courriel invalide');
         return;
       }
 
       connection.query(
-        'UPDATE clients SET status = ? WHERE id_client = ?',
+        'UPDATE client SET status = ? WHERE id_client = ?',
         [true, client.id_client],
-        (err) => {
-          if (err) {
-            console.error("Impossible de mettre a jour le compte client : ", err);
+        (error) => {
+          if (error) {
+            console.error("Impossible de mettre a jour le compte client : ", error);
             res.sendStatus(500);
             return;
           } else {
             
-            req.session.isLoggedIn = true;
-            req.session.userEmail = client.courriel;
-            req.session.clientId = client.id_client;
-            const cart = req.session.cart;
+            isLoggedIn = true;
+            userEmail = client.courriel;
+            idClient = client.id_client;
             
             res.redirect("/");
 
@@ -236,72 +222,61 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/cart/add', function(req, res) {
-
   const { id_produit, quantity, price} = req.body;
-  const cart = req.session.cart ? req.session.cart : [];
-
   cart.push({ id_produit, quantity, price });
-  req.session.cart = cart;
-
-  res.send('Item ajoute au panier.');
+  res.status(200).send('Item ajoute au panier.');
 });
 
 app.post('/order', function(req, res) {
+  
   let insertCommande = "INSERT INTO Commande (id_client, id_produit, quantite, prix_unitaire, date_commande) VALUES ";  
-  const cart = req.session.cart;
-  console.log("/order:clientId:")
-  console.log(req.session.clientId)
-  if (!req.session.clientId) {
-    res.statusCode = 401;
-    res.send("SVP vous connecter ou vous inscrire.");
+  
+  console.log("/order:idClient");
+  console.log(idClient);
+
+  if (idClient == "none") {
+    res.status(401).send("SVP vous connecter ou vous inscrire.");
   } else {
-    cart.forEach(function(item, idx, array){
+    
+    cart.forEach( function(item, idx, array) {
       if (idx + 1 === array.length){ 
-        insertCommande += `(${req.session.clientId}, ${item.id_produit}, ${item.quantity}, ${item.price}, now());`;
+        insertCommande += `(${idClient}, ${item.id_produit}, ${item.quantity}, ${item.price}, now());`;
       } else {
-        insertCommande += `(${req.session.clientId}, ${item.id_produit}, ${item.quantity}, ${item.price}, now()),`;
+        insertCommande += `(${idClient}, ${item.id_produit}, ${item.quantity}, ${item.price}, now()),`;
       }
     });  
-    console.log(insertCommande);
-    connection.query(insertCommande, (err, result) => {
-      if (err) throw err;
-      console.log('Commandes ajoutes');
-    });
-    res.send('Commandes ajoutes dans la BD');
+
+    connection.query(insertCommande, (error, result) => {
+      if (error) {
+        res.status(500).send("Erreur de création de la commande");
+      } else {
+        res.status(200).send('Commandes ajoutes dans la BD');
+      }
+    });  
+
   }
 });
 
 app.delete('/cart', function(req, res) {
-  const { destroy } = req.body;
-  if (destroy == "all") {
-    req.session.cart =[];
-    res.send('Panier effacer');
-  }  
+    cart = [];
+    res.status(200).send('Panier effacer');
 });
 
 app.post('/subscribe', (req, res) => {
   const { prenom, nom, courriel, password } = req.body;
-
-  const query = 'INSERT INTO clients (paypalId, prenom, nom, courriel, password) VALUES (?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO client (paypalId, prenom, nom, courriel, password) VALUES (?, ?, ?, ?, ?)';
   const values = [PAYPAL_ID, prenom, nom, courriel, password];
 
   connection.query(query, values, (error, results) => {
     if (error) {
-      console.error('Erreur de création du nouveau client:', error);
-      res.status(500).send('Erreur de création du nouveau client');
+      res.status(500).send("Erreur de création du nouveau client");
     } else {
-      console.log('Client créé avec succès');
-
-      req.session.userEmail = courriel;
-      req.session.isLoggedIn = true;
-      cart = req.session.cart;
-      req.session.clientId = results.insertId;
-
-      res.redirect("/");
+      userEmail = courriel;
+      isLoggedIn = true;
+      idClient = results.insertId;
+      res.status(200).redirect("/");
 	  }
-
   });
-
 });
 
 
@@ -338,7 +313,7 @@ function createDBTable() {
         return;
       }});
 
-    connection.query(createClientsTable, function(err, result) {
+    connection.query(createClientTable, function(err, result) {
       if (err) throw err;
     });
 
@@ -346,7 +321,7 @@ function createDBTable() {
       if (err) throw err;
     });
 
-    connection.query(createProduitsTable, function(err, result) {
+    connection.query(createProduitTable, function(err, result) {
       if (err) throw err;
     });
     
@@ -354,14 +329,12 @@ function createDBTable() {
       if (err) throw err;
     });
     
-        connection.query(createCommandeTable, function(err, result) {
+    connection.query(createCommandeTable, function(err, result) {
       if (err) throw err;
-      console.log("TABLE commande créée"); // TO REMOVE
     });
 
-    connection.query(insertCommande, (err, result) => {
+    connection.query(insertCommandes, (err, result) => {
       if (err) throw err;
-      console.log('Commandes ajoutées'); // TO REMOVE
     });
     
     console.log("Initialisation de la base de donnees complete.")

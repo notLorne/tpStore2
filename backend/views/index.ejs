@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Boutique Ahuntsic</title>
 </head>
 
 <style>
@@ -175,8 +175,8 @@
               <input type="email" id="email" name="email" required>
             </div>
             <div>
-              <label for="password">Mot de passe :</label>
-              <input type="password" id="password" name="password" autocomplete="on" required>
+              <label for="passwordLog">Mot de passe :</label>
+              <input type="password" id="passwordLog" name="passwordLog" autocomplete="on" required>
             </div>
             <div>
               <input type="submit" value="Connexion">
@@ -212,8 +212,7 @@
         <p>Your cart is empty.</p>
         <% } %>
 
-        <!-- Paypal section 
-             For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="paypal123" for approval TO REMOVE -->
+        <!-- Paypal section -->
         <script src="https://www.paypal.com/sdk/js?client-id=ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy"></script>
         <script>
             paypal
@@ -237,6 +236,7 @@
                 })
                 .render('#paypal');
             
+          
             async function updateDB() {
                 try {
                     var response = await fetch('/order', {
@@ -247,10 +247,12 @@
                         alert("Commande sauvegardés dans la BD avec succès!");
                         emptyCart();
                     } else {
+           
                         if (response.status == 401) {
-                            alert("S'il vous plaît vous enregistré");
+                            alert("SVP vous connecter ou vous inscrire.");
                             return;
                         }
+                        
                         alert('Problème de sauvegarde de la commande dans la BD');
                     }
                 } catch (error) {
@@ -263,7 +265,7 @@
                     var response = await fetch('/cart', {
                         method: 'DELETE',
                         headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ destroy: "all" })
+                        // body: JSON.stringify({ destroy: "all" })
                     });
 
                     if (response.ok) {
