@@ -61,7 +61,7 @@
     }
     .button-style {
         padding: 10px 20px;
-        background-color: #eaeaea;
+        background-color: #d9f758;
         font-family: Arial, sans-serif;
         font-size: 32px;
         color: #333;
@@ -69,55 +69,64 @@
     .little-button-style
     {
         padding: 2px 4px;
-        background-color: #eaeaea;
+        background-color: #fffc52;
         font-family: Arial, sans-serif;
         font-size: 12px;
         color: #333;
     }
     body {
-        background-color: #28d6a2;
+        background-color: #bd45f5;
     }
     h1 {
         text-align: center;
         font-family: 'Roboto', sans-serif;
         font-size: 72px;
-        animation: colorChange 5s infinite;
+        animation: scaleAndColorChange 15s infinite;
     }
-    @keyframes colorChange {
+
+    @keyframes scaleAndColorChange {
         0% {
+            transform: scale(1);
             color: red;
         }
         50% {
+            transform: scale(1.2);
             color: rgb(0, 4, 255);
         }
         100% {
+            transform: scale(1);
             color: rgb(255, 0, 0);
         }
     }
+
     h2 {
        
         text-align: center;
         font-family: 'Roboto', sans-serif;
         font-size: 24px;
-        animation: colorChange 5s infinite;
+        background-color: rgb(240, 75, 240)
+    }
+    h3 {
+        text-align: center;
+        font-family: 'Roboto', sans-serif;
+        font-size: 32px;
+        background-color: gold
     }
 </style>
 
 <body>
 
 <div class="centered-elements">
-    <img src="/assets/blingCover.jpg" alt="Bling Cover Image" style="width: 1150px; height: 400px;">
+    <img src="/assets/blingCover.jpg" alt="Bling Cover Image" style="width: 1150px; height: 250px;">
 </div>
 
-<div id="loginStatus" class="centered-elements">
+<h3 id="loginStatus" class="centered-elements">
     <% if (isLoggedIn) { %>
-      Connected as <%= userEmail %>
+      Connecté en tant que <%= userEmail %>
     <% } else { %>
-      Not logged in
+      Inscrivez-vous ou connectez-vous!
     <% } %>
-  </div>
-  
-<br>
+</h3>
 
 <div class="centered-buttons">
     <% if (isLoggedIn) { %>
