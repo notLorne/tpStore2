@@ -25,11 +25,14 @@ const connection = mysql.createConnection({
 let isDBloaded = false;
 let cart = [];
 let isLoggedIn = false;
+let historique = [];
+const PAYPAL_ID = "ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy";
 
 //TABLES DEFINITIONS
 
 //DEL + CREATE + USE
-const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';const createSchemaQuery = 'CREATE SCHEMA db_store;';
+const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';
+const createSchemaQuery = 'CREATE SCHEMA db_store;';
 const useSchemaQuery = 'USE db_store;';
 
 const createClientsTable = `
@@ -48,16 +51,16 @@ const createClientsTable = `
 const createClientAccounts = `
   INSERT INTO clients (paypalId, nom, prenom, courriel, password, status)
   VALUES
-    ('paypal_id_1', 'Tremblay', 'Jean', 'email1@example.com', 'password1', FALSE),
-    ('paypal_id_2', 'Gagnon', 'Marie', 'email2@example.com', 'password2', FALSE),
-    ('paypal_id_3', 'Roy', 'Claude', 'email3@example.com', 'password3', FALSE),
-    ('paypal_id_4', 'Côté', 'Yvonne', 'email4@example.com', 'password4', FALSE),
-    ('paypal_id_5', 'Bélanger', 'Pierre', 'email5@example.com', 'password5', FALSE),
-    ('paypal_id_6', 'Leblanc', 'Simone', 'email6@example.com', 'password6', FALSE),
-    ('paypal_id_7', 'Gauthier', 'Jacques', 'email7@example.com', 'password7', FALSE),
-    ('paypal_id_8', 'Lavoie', 'Louise', 'email8@example.com', 'password8', FALSE),
-    ('paypal_id_9', 'Beaudoin', 'René', 'email9@example.com', 'password9', FALSE),
-    ('paypal_id_10', 'Bergeron', 'Cécile', 'email10@example.com', 'password10', FALSE);
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Tremblay', 'Jean', 'email1@example.com', 'password1', FALSE),
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Gagnon', 'Marie', 'email2@example.com', 'password2', FALSE),
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Roy', 'Claude', 'email3@example.com', 'password3', FALSE),
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Côté', 'Yvonne', 'email4@example.com', 'password4', FALSE),
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Bélanger', 'Pierre', 'email5@example.com', 'password5', FALSE),
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Leblanc', 'Simone', 'email6@example.com', 'password6', FALSE),
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Gauthier', 'Jacques', 'email7@example.com', 'password7', FALSE),
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Lavoie', 'Louise', 'email8@example.com', 'password8', FALSE),
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Beaudoin', 'René', 'email9@example.com', 'password9', FALSE),
+    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Bergeron', 'Cécile', 'email10@example.com', 'password10', FALSE);
 `;
 
 const createProduitsTable = `
@@ -75,20 +78,6 @@ const createProduitsTable = `
   );
 `;
 
-const createCommandeTable = `
-  CREATE TABLE Commande (
-    id_commande INT AUTO_INCREMENT,
-    id_client INT,
-    id_produit INT,
-    quantite INT,
-    prix_unitaire DECIMAL(10,2),
-    date_commande DATETIME,
-    PRIMARY KEY (id_commande),
-    FOREIGN KEY (id_client) REFERENCES clients (id_client),
-    FOREIGN KEY (id_produit) REFERENCES produits (id_produit)
-  );
-`;
-
 const insertProduits = `
   INSERT INTO produits (nom, categorie, prix, materiel, pierre, carat, origine, image_url)
   VALUES
@@ -102,8 +91,31 @@ const insertProduits = `
     ('Bracelet en grenat', 'Bracelet', 500, 'Argent', 'Grenat', 0.75, 'Éthiopie', '/assets/8_bracelet_grenat.jpg'),
     ('Collier en opale', 'Collier', 900, 'Or blanc 14 carats', 'Opale', 1.8, 'Éthiopie', '/assets/9_collierOpale.jpg'),
     ('Boucles d''oreilles en citrine', 'Boucles d''oreilles', 300, 'Or jaune', 'Citrine', 1.5, 'Niger', '/assets/10_citrine.jpg');
+  `;
+
+const createCommandeTable = `
+  CREATE TABLE commande (
+    id_commande INT AUTO_INCREMENT,
+    id_client INT,
+    id_produit INT,
+    quantite INT,
+    prix_unitaire DECIMAL(10,2),
+    date_commande DATETIME,
+    PRIMARY KEY (id_commande),
+    FOREIGN KEY (id_client) REFERENCES clients (id_client),
+    FOREIGN KEY (id_produit) REFERENCES produits (id_produit)
+  );
 `;
 
+const insertCommande = `
+  INSERT INTO commande (id_client, id_produit, quantite, prix_unitaire, date_commande)
+  VALUES 
+    (1, 1, 1, 1500, now()),
+    (2, 2, 1, 800, now()),
+    (1, 3, 1, 1200, now()),
+    (1, 3, 1, 1200, now());
+  `;    
+    
 //MIDDLEWARES
 
 app.listen(port, (res, req) => {
@@ -137,16 +149,39 @@ app.get('/', (req, res) => {
 
   const isLoggedIn = req.session.isLoggedIn ? req.session.isLoggedIn : false;
   const userEmail = req.session.userEmail ? req.session.userEmail : null;
-
+  console.log(isLoggedIn); // TO REMOVE
+  console.log(userEmail); // TO REMOVE
+  
   connection.query('SELECT * FROM produits', (err, rows) => {
     if (err) {
-      console.error("Impossible d'executer la requete : ", err);
-      return res.status(500).send("Erreur Interne");
+      console.error("Impossible d'executer la demande:", err);
+      res.status(500).send('Erreur de serveur.');
+      return;
     }
 
     const cart = req.session.cart;
 
-    res.render('index', { produits: rows, cart: cart, isLoggedIn: isLoggedIn, userEmail: userEmail });
+    // Bâtir l'historique
+    const selectHistorique = `
+      SELECT p.id_produit, p.nom, p.origine, c.quantite, c.prix_unitaire, c.date_commande, c.id_client
+      FROM produits p, commande c
+      WHERE p.id_produit = c.id_produit AND c.id_client = ?;
+    `; 
+
+    connection.query(
+      selectHistorique,
+      [req.session.clientId],  
+      (err, histoire) => {
+        if (err) {
+        console.error("Impossible de bâtir l'historique:", err);
+        res.status(500).send("Erreur dans historique.");
+        return;
+        }
+  
+      console.log('Historique:', histoire); // TO REMOVE
+      res.render('index', { produits: rows, cart: cart, isLoggedIn: isLoggedIn, userEmail: userEmail, historique: histoire });
+
+    });
   });
 });
 
@@ -184,22 +219,16 @@ app.post('/login', (req, res) => {
             console.error("Impossible de mettre a jour le compte client : ", err);
             res.sendStatus(500);
             return;
-          }
-
-          connection.query('SELECT * FROM produits', (err, rows) => {
-            if (err) {
-              console.error("Impossible d'executer la demande:", err);
-              res.status(500).send('Erreur de serveur.');
-              return;
-            }
-
+          } else {
+            
             req.session.isLoggedIn = true;
             req.session.userEmail = client.courriel;
             req.session.clientId = client.id_client;
-
             const cart = req.session.cart;
-            res.render('index', { produits: rows, cart: cart, isLoggedIn: true, userEmail: client.courriel });
-          });
+            
+            res.redirect("/");
+
+          }
         }
       );
     }
@@ -220,6 +249,8 @@ app.post('/cart/add', function(req, res) {
 app.post('/order', function(req, res) {
   let insertCommande = "INSERT INTO Commande (id_client, id_produit, quantite, prix_unitaire, date_commande) VALUES ";  
   const cart = req.session.cart;
+  console.log("/order:clientId:")
+  console.log(req.session.clientId)
   if (!req.session.clientId) {
     res.statusCode = 401;
     res.send("SVP vous connecter ou vous inscrire.");
@@ -244,43 +275,33 @@ app.delete('/cart', function(req, res) {
   const { destroy } = req.body;
   if (destroy == "all") {
     req.session.cart =[];
-    res.send('Panier efface');
+    res.send('Panier effacer');
   }  
 });
- 
-app.get('/historique', (req, res) => {
-
-});
-
 
 app.post('/subscribe', (req, res) => {
   const { prenom, nom, courriel, password } = req.body;
 
-  const query = 'INSERT INTO clients (prenom, nom, courriel, password) VALUES (?, ?, ?, ?)';
-  const values = [prenom, nom, courriel, password];
+  const query = 'INSERT INTO clients (paypalId, prenom, nom, courriel, password) VALUES (?, ?, ?, ?, ?)';
+  const values = [PAYPAL_ID, prenom, nom, courriel, password];
 
   connection.query(query, values, (error, results) => {
     if (error) {
-      console.error('Error inserting data:', error);
-      res.status(500).send('Internal Server Error');
+      console.error('Erreur de création du nouveau client:', error);
+      res.status(500).send('Erreur de création du nouveau client');
     } else {
-      console.log('Data inserted successfully');
+      console.log('Client créé avec succès');
 
-      const isLoggedIn = true;
-      const userEmail = courriel;
-      const cart = req.session.cart;
+      req.session.userEmail = courriel;
+      req.session.isLoggedIn = true;
+      cart = req.session.cart;
+      req.session.clientId = results.insertId;
 
-      const productsQuery = 'SELECT * FROM produits';
-      connection.query(productsQuery, (error, rows) => {
-        if (error) {
-          console.error('Error retrieving products:', error);
-          res.status(500).send('Internal Server Error');
-        } else {
-          res.render('index', { produits: rows, cart, isLoggedIn, userEmail });
-        }
-      });
-    }
+      res.redirect("/");
+	  }
+
   });
+
 });
 
 
@@ -333,9 +354,16 @@ function createDBTable() {
       if (err) throw err;
     });
     
-    connection.query(createCommandeTable, function(err, result) {
+        connection.query(createCommandeTable, function(err, result) {
       if (err) throw err;
+      console.log("TABLE commande créée"); // TO REMOVE
     });
+
+    connection.query(insertCommande, (err, result) => {
+      if (err) throw err;
+      console.log('Commandes ajoutées'); // TO REMOVE
+    });
+    
     console.log("Initialisation de la base de donnees complete.")
   });
 }

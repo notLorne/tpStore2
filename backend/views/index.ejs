@@ -287,30 +287,35 @@
     </div>
     </div>
 
-    <!-- Modal produits achetés -->
+	<!-- Modal produits achetés -->
     <div id="historyModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
 
-        <h2>Tous les produits achetés par le client <span><%= userEmail %></span></h2>
+        <h2>Produits achetés</h2>
 
-        <script>                                    
-            async function getHistorique() {
-                try {
-                    var response = await fetch('/historique', {
-                        method: 'GET'
-                    });
-
-                    if (response.ok) {
-                        alert("Historique reçu");
-                    } else {
-                        alert('Historique problématique');
-                    }
-                } catch (error) {
-                        console.error('Error:', error);
-                }
-            }
-        </script>               
+        <% var grandTotal = 0.0 %>
+        <% var total = 0.0 %>
+        <% if ( historique && historique.length > 0) { %>
+        <ul>
+            <% historique.forEach(function(item) { %>
+            <% total = item.prix_unitaire * item.quantite %>
+            <% grandTotal += item.prix_unitaire * item.quantite %>
+            <li>
+ 				<strong>SKU:</strong><%= item.id_produit %><br>
+                <strong>DATE:</strong><%= new Date(item.date_commande).toISOString() %><br>
+                Nom: <%= item.nom %><br> 
+                Origine: <%= item.origine %><br>
+                Quantité:<%= item.quantite %><br>
+                Prix: <%= item.prix_unitaire %><br> 
+                Total: <%= total %>               
+            </li>
+            <% }) %>
+        </ul>
+        GRAND TOTAL: <%= grandTotal %>
+        <% } else { %>
+        <p>Aucun</p>
+        <% } %>
     </div>
     </div>
     
