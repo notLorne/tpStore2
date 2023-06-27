@@ -75,6 +75,7 @@
     Si vous ajouter un to do indiquer le dans le code et dans le readme.md
     TO REMOVE indique que ça doit être retirer avant la mise en prod
 
+    0. (FAIT) cart dans variable de session et non variable global ds app.js
     1. Améliorer l'aspect visuel global (ex: les modal,...)
     2. Éventuellement, ne plus détruire le BD au complet car on pert les commandes et les nouveaux clients
     3. (m) Retirer paypalId dans la table client
@@ -84,6 +85,7 @@
     8. (m) Relire le pdf du tp2 s'assurer qu'on répond bien à tout
     9. comment recupéré le texte d'un res.status(...).send("texte")
     10. Indice sur le bouton Panier compteur d'items
+    11. S'inscrire ne devrait plus être disponible quand on est login
 
     Question (steve):
     1. concept de session (ex.: login, panier, ...)

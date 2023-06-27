@@ -23,7 +23,6 @@ const PAYPAL_ID = "ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJ
 
 //VARIABLES
 
-let cart = [];
 let isLoggedIn = false;
 let userEmail = "none";
 let idClient = "none";
@@ -144,6 +143,10 @@ app.use((req, res, next) => {
 
 app.get('/', (req, res) => {
   
+  if (!req.session.cart) {
+    req.session.cart = [];
+  } 
+  
   connection.query('SELECT * FROM produit', (error, rows) => {
     if (error) {
       console.error("Impossible d'executer la demande:", error);
@@ -165,7 +168,7 @@ app.get('/', (req, res) => {
         return;
         }
 
-        res.render('index', { produits: rows, cart: cart, isLoggedIn: isLoggedIn, userEmail: userEmail, historique: histoire });
+        res.render('index', { produits: rows, cart: req.session.cart, isLoggedIn: isLoggedIn, userEmail: userEmail, historique: histoire });
       }
     );
   });
@@ -223,7 +226,7 @@ app.post('/login', (req, res) => {
 
 app.post('/cart/add', function(req, res) {
   const { id_produit, quantity, price} = req.body;
-  cart.push({ id_produit, quantity, price });
+  req.session.cart.push({ id_produit, quantity, price });
   res.status(200).send('Item ajoute au panier.');
 });
 
@@ -235,7 +238,7 @@ app.post('/order', function(req, res) {
     res.status(401).send("SVP vous connecter ou vous inscrire.");
   } else {
     
-    cart.forEach( function(item, idx, array) {
+    req.session.cart.forEach( function(item, idx, array) {
       if (idx + 1 === array.length){ 
         insertCommande += `(${idClient}, ${item.id_produit}, ${item.quantity}, ${item.price}, now());`;
       } else {
@@ -255,7 +258,7 @@ app.post('/order', function(req, res) {
 });
 
 app.delete('/cart', function(req, res) {
-    cart = [];
+    req.session.cart = [];
     res.status(200).send('Panier effacer');
 });
 
