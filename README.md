@@ -68,8 +68,6 @@
     Une fois connecté, il faut pouvoir garder en mémoire les articles déposés dans le panier d’achat,
     et ce, même lorsqu’on rafraichit la page (concept de session).
 
-#MODÈLE CONCEPTUEL DES DONNÉES (TABLES SQL ET +)
-
 #NOTES IMPLANTATION
 
 #TO DO
@@ -77,14 +75,18 @@
     Si vous ajouter un to do indiquer le dans le code et dans le readme.md
     TO REMOVE indique que ça doit être retirer avant la mise en prod
 
-    1. Le modal cart / paypal pourrait être améliorer visualement et aussi le <input type="number" ...> pour le montant total faudrait plus pouvoir jouer avec les flêches 
+    1. Améliorer l'aspect visuel global (ex: les modal,...)
     2. Éventuellement, ne plus détruire le BD au complet car on pert les commandes et les nouveaux clients
-    3. Est-ce que status et paypalId nécessaire dans la table client
+    3. (m) Retirer paypalId dans la table client
     4. En modifiant app.js j'utilise plus le concept de variable de session alors si un client efface son cache il restera connecté quand même, est-ce OK?
-    5. Logout?
+    5. (m) Logout?
     6. Question bonus?
-    7. Readme.md MODÈLE CONCEPTUEL DES DONNÉES est-ce que le développe ici on on retire la section
-    8. Relire le pdf du tp2 s'assurer qu'on répond bien à tout
+    8. (m) Relire le pdf du tp2 s'assurer qu'on répond bien à tout
+    9. comment recupéré le texte d'un res.status(...).send("texte")
+    10. Indice sur le bouton Panier compteur d'items
+
+    Question (steve):
+    1. concept de session (ex.: login, panier, ...)
 
 #ENTÊTE
    

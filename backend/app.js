@@ -230,9 +230,6 @@ app.post('/cart/add', function(req, res) {
 app.post('/order', function(req, res) {
   
   let insertCommande = "INSERT INTO Commande (id_client, id_produit, quantite, prix_unitaire, date_commande) VALUES ";  
-  
-  console.log("/order:idClient");
-  console.log(idClient);
 
   if (idClient == "none") {
     res.status(401).send("SVP vous connecter ou vous inscrire.");

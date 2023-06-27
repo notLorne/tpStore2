@@ -247,9 +247,10 @@
                         alert("Commande sauvegardés dans la BD avec succès!");
                         emptyCart();
                     } else {
-           
+                        console.log(response);
                         if (response.status == 401) {
-                            alert("SVP vous connecter ou vous inscrire.");
+                            // alert("SVP vous connecter ou vous inscrire.");
+                            alert(response.statusText);
                             return;
                         }
                         
