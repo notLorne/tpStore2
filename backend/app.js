@@ -190,7 +190,7 @@ app.post('/subscribe', (req, res) => {
           res.status(500).send("Erreur de vérification de l'adresse e-mail");
         } else {
           if (results.length > 0) {
-            res.redirect("/");
+            res.render('error');
           } else {
             const insertQuery = 'INSERT INTO client (prenom, nom, courriel, password) VALUES (?, ?, ?, ?)';
             const insertValues = [prenom, nom, courriel, hash];
@@ -228,7 +228,7 @@ app.post('/login', (req, res) => {
       }
 
       if (results.length === 0) {
-        res.status(401).send('Mot de passe ou courriel invalide');
+        res.render('error');
         return;
       }
 
@@ -239,7 +239,7 @@ app.post('/login', (req, res) => {
         .then(response => {
           
           if (!response) {
-            res.status(401).send('Mot de passe ou courriel invalide');
+            res.render('error');
             return;
 
           } else {
@@ -262,7 +262,6 @@ app.post('/login', (req, res) => {
               }
             );
           }
-         
         })
         .catch(err => console.error(err.message));     
     }
