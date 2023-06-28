@@ -15,9 +15,17 @@ const connection = mysql.createConnection({
   host: 'localhost',
   port: 3306,
   user: 'tp_account_1',
-  password: 'test',
-  database: 'db_store'
+  password: 'test'
 });
+
+// TO REMOVE
+// const connection = mysql.createConnection({
+//   host: 'localhost',
+//   port: 3306,
+//   user: 'tp_account_1',
+//   password: 'test',
+//   database: 'db_store'
+// });
 
 const PAYPAL_ID = "ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy";
 
@@ -30,14 +38,13 @@ let idClient = "none";
 //TABLES DEFINITIONS
 
 //DEL + CREATE + USE
-const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';
-const createSchemaQuery = 'CREATE SCHEMA db_store;';
+// const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';
+const createSchemaQuery = 'CREATE SCHEMA IF NOT EXISTS db_store ;';
 const useSchemaQuery = 'USE db_store;';
 
 const createClientTable = `
-  CREATE TABLE client (
-    id_client INT AUTO_INCREMENT,
-    paypalId VARCHAR(128),
+  CREATE TABLE IF NOT EXISTS client (
+    id_client INT AUTO_INCREMENT,    
     nom VARCHAR(32),
     prenom VARCHAR(24),
     courriel VARCHAR(96),
@@ -48,22 +55,22 @@ const createClientTable = `
 `;
 
 const createClientAccounts = `
-  INSERT INTO client (paypalId, nom, prenom, courriel, password, status)
+  INSERT IGNORE INTO client (id_client, nom, prenom, courriel, password, status)
   VALUES
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Tremblay', 'Jean', 'email1@example.com', 'password1', FALSE),
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Gagnon', 'Marie', 'email2@example.com', 'password2', FALSE),
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Roy', 'Claude', 'email3@example.com', 'password3', FALSE),
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Côté', 'Yvonne', 'email4@example.com', 'password4', FALSE),
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Bélanger', 'Pierre', 'email5@example.com', 'password5', FALSE),
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Leblanc', 'Simone', 'email6@example.com', 'password6', FALSE),
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Gauthier', 'Jacques', 'email7@example.com', 'password7', FALSE),
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Lavoie', 'Louise', 'email8@example.com', 'password8', FALSE),
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Beaudoin', 'René', 'email9@example.com', 'password9', FALSE),
-    ('ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy', 'Bergeron', 'Cécile', 'email10@example.com', 'password10', FALSE);
+    (1, 'Tremblay', 'Jean', 'email1@example.com', 'password1', FALSE),
+    (2, 'Gagnon', 'Marie', 'email2@example.com', 'password2', FALSE),
+    (3, 'Roy', 'Claude', 'email3@example.com', 'password3', FALSE),
+    (4, 'Côté', 'Yvonne', 'email4@example.com', 'password4', FALSE),
+    (5, 'Bélanger', 'Pierre', 'email5@example.com', 'password5', FALSE),
+    (6, 'Leblanc', 'Simone', 'email6@example.com', 'password6', FALSE),
+    (7, 'Gauthier', 'Jacques', 'email7@example.com', 'password7', FALSE),
+    (8, 'Lavoie', 'Louise', 'email8@example.com', 'password8', FALSE),
+    (9, 'Beaudoin', 'René', 'email9@example.com', 'password9', FALSE),
+    (10, 'Bergeron', 'Cécile', 'email10@example.com', 'password10', FALSE);
 `;
 
 const createProduitTable = `
-  CREATE TABLE produit (
+  CREATE TABLE IF NOT EXISTS produit(
     id_produit INT AUTO_INCREMENT,
     nom VARCHAR(72),
     categorie VARCHAR(32),
@@ -78,22 +85,22 @@ const createProduitTable = `
 `;
 
 const insertProduits = `
-  INSERT INTO produit (nom, categorie, prix, materiel, pierre, carat, origine, image_url)
+  INSERT IGNORE INTO produit (id_produit, nom, categorie, prix, materiel, pierre, carat, origine, image_url)
   VALUES
-    ('Collier en diamant', 'Collier', 1500, 'Or blanc 18 carats', 'Diamant', 1.5, 'Burundi', '/assets/1_collier_diamand.jpg'),
-    ('Bague en rubis', 'Bague', 800, 'Or jaune 14 carats', 'Rubis', 0.75, 'Malawi', '/assets/2_bague_rubis.jpg'),
-    ('Boucles d''oreilles en émeraude', 'Boucles d''oreilles', 1200, 'Platine', 'Émeraude', 1.0, 'Liberia', '/assets/3_boucle_emeraud.jpg'),
-    ('Bracelet en saphir', 'Bracelet', 1800, 'Argent sterling', 'Saphir', 2.0, 'Mozambique', '/assets/4_bracelet_saphyr.jpg'),
-    ('Pendentif en améthyste', 'Pendentif', 400, 'Or rose 10 carats', 'Améthyste', 0.5, 'République centrafricaine', '/assets/5_pendantif_amethyst.jpg'),
-    ('Boucles d''oreilles en perle', 'Boucles d''oreilles', 250, 'Argent sterling', 'Perle', NULL, 'Madagascar', '/assets/6_boucle_perle.jpg'),
-    ('Bague en topaze', 'Bague', 350, 'Or blanc 10 carats', 'Topaze', 1.25, 'Sierra Leone', '/assets/7_bague_topaze.jpg'),
-    ('Bracelet en grenat', 'Bracelet', 500, 'Argent', 'Grenat', 0.75, 'Éthiopie', '/assets/8_bracelet_grenat.jpg'),
-    ('Collier en opale', 'Collier', 900, 'Or blanc 14 carats', 'Opale', 1.8, 'Éthiopie', '/assets/9_collierOpale.jpg'),
-    ('Boucles d''oreilles en citrine', 'Boucles d''oreilles', 300, 'Or jaune', 'Citrine', 1.5, 'Niger', '/assets/10_citrine.jpg');
+    (1, 'Collier en diamant', 'Collier', 1500, 'Or blanc 18 carats', 'Diamant', 1.5, 'Burundi', '/assets/1_collier_diamand.jpg'),
+    (2, 'Bague en rubis', 'Bague', 800, 'Or jaune 14 carats', 'Rubis', 0.75, 'Malawi', '/assets/2_bague_rubis.jpg'),
+    (3, 'Boucles d''oreilles en émeraude', 'Boucles d''oreilles', 1200, 'Platine', 'Émeraude', 1.0, 'Liberia', '/assets/3_boucle_emeraud.jpg'),
+    (4, 'Bracelet en saphir', 'Bracelet', 1800, 'Argent sterling', 'Saphir', 2.0, 'Mozambique', '/assets/4_bracelet_saphyr.jpg'),
+    (5, 'Pendentif en améthyste', 'Pendentif', 400, 'Or rose 10 carats', 'Améthyste', 0.5, 'République centrafricaine', '/assets/5_pendantif_amethyst.jpg'),
+    (6, 'Boucles d''oreilles en perle', 'Boucles d''oreilles', 250, 'Argent sterling', 'Perle', NULL, 'Madagascar', '/assets/6_boucle_perle.jpg'),
+    (7, 'Bague en topaze', 'Bague', 350, 'Or blanc 10 carats', 'Topaze', 1.25, 'Sierra Leone', '/assets/7_bague_topaze.jpg'),
+    (8, 'Bracelet en grenat', 'Bracelet', 500, 'Argent', 'Grenat', 0.75, 'Éthiopie', '/assets/8_bracelet_grenat.jpg'),
+    (9, 'Collier en opale', 'Collier', 900, 'Or blanc 14 carats', 'Opale', 1.8, 'Éthiopie', '/assets/9_collierOpale.jpg'),
+    (10, 'Boucles d''oreilles en citrine', 'Boucles d''oreilles', 300, 'Or jaune', 'Citrine', 1.5, 'Niger', '/assets/10_citrine.jpg');
   `;
 
 const createCommandeTable = `
-  CREATE TABLE commande (
+  CREATE TABLE IF NOT EXISTS commande (
     id_commande INT AUTO_INCREMENT,
     id_client INT,
     id_produit INT,
@@ -107,12 +114,12 @@ const createCommandeTable = `
 `;
 
 const insertCommandes = `
-  INSERT INTO commande (id_client, id_produit, quantite, prix_unitaire, date_commande)
+  INSERT IGNORE INTO commande (id_commande, id_client, id_produit, quantite, prix_unitaire, date_commande)
   VALUES 
-    (1, 1, 1, 1500, now()),
-    (2, 2, 1, 800, now()),
-    (1, 3, 1, 1200, now()),
-    (1, 3, 1, 1200, now());
+    (1, 1, 1, 1, 1500, now()),
+    (2, 2, 2, 1, 800, now()),
+    (3, 1, 3, 1, 1200, now()),
+    (4, 1, 3, 1, 1200, now());
   `;    
     
 //MIDDLEWARES
@@ -172,6 +179,14 @@ app.get('/', (req, res) => {
       }
     );
   });
+});
+
+app.post('/logout', (req, res) => {
+  isLoggedIn = false;
+  userEmail = "none";
+  idClient = "none";
+  req.session.cart = [];
+  res.status(200).redirect("/");
 });
 
 app.post('/login', (req, res) => {
@@ -263,9 +278,9 @@ app.delete('/cart', function(req, res) {
 });
 
 app.post('/subscribe', (req, res) => {
-  const { prenom, nom, courriel, password } = req.body;
-  const query = 'INSERT INTO client (paypalId, prenom, nom, courriel, password) VALUES (?, ?, ?, ?, ?)';
-  const values = [PAYPAL_ID, prenom, nom, courriel, password];
+  const { prenom, nom, courriel, password } = req.body;  
+  const query = 'INSERT INTO client (prenom, nom, courriel, password) VALUES (?, ?, ?, ?)';
+  const values = [prenom, nom, courriel, password];
 
   connection.query(query, values, (error, results) => {
     if (error) {
@@ -295,11 +310,11 @@ function createDBTable() {
 
     // DEL + CREATE + USE
 
-    connection.query(deleteSchemaQuery, (err) => {
-      if (err) {
-        console.error('Impossible de supprimer le schema : ', err);
-        return;
-      }});
+    // connection.query(deleteSchemaQuery, (err) => {
+    //   if (err) {
+    //     console.error('Impossible de supprimer le schema : ', err);
+    //     return;
+    //   }});
     
     connection.query(createSchemaQuery, (err) => {
       if (err) {
@@ -309,7 +324,7 @@ function createDBTable() {
 
     connection.query(useSchemaQuery, (err) => {
       if (err) {
-        console.error('Impossible de definir le schema de base :', err);
+        console.error('Impossible de definir le schema de base :', err);        
         return;
       }});
 

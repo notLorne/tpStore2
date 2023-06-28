@@ -75,20 +75,22 @@
     Si vous ajouter un to do indiquer le dans le code et dans le readme.md
     TO REMOVE indique que ça doit être retirer avant la mise en prod
 
-    0. (FAIT) cart dans variable de session et non variable global ds app.js
+    13. Il est possible de créer deux clients identique présentement. Un client avec le même email ne devrait pas pouvoir être créé
     1. Améliorer l'aspect visuel global (ex: les modal,...)
-    2. Éventuellement, ne plus détruire le BD au complet car on pert les commandes et les nouveaux clients
-    3. (m) Retirer paypalId dans la table client
-    4. En modifiant app.js j'utilise plus le concept de variable de session alors si un client efface son cache il restera connecté quand même, est-ce OK?
-    5. (m) Logout?
     6. Question bonus?
     8. (m) Relire le pdf du tp2 s'assurer qu'on répond bien à tout
-    9. comment recupéré le texte d'un res.status(...).send("texte")
+    9. Comment recupéré le texte d'un res.status(...).send("texte")
     10. Indice sur le bouton Panier compteur d'items
-    11. S'inscrire ne devrait plus être disponible quand on est login
+    12. Regarder bouton paypal erreur: b.sbox.stats.paypal.com/v2/counter.cgi?p=uid_8ddcb4ced1_mde6mde6mdm&s=SMART_PAYMENT_BUTTONS:1     GET https://b.sbox.stats.paypal.com/v2/counter.cgi?p=uid_8ddcb4ced1_mde6mde6mdm&s=SMART_PAYMENT_BUTTONS net::ERR_CONNECTION_TIMED_OUT
+
+    2. (ok) Éventuellement, ne plus détruire le BD au complet car on pert les commandes et les nouveaux clients  
+    11.(ok) S'inscrire ne devrait plus être disponible quand on est login
+    5. (ok) Logout?
+    0. (ok) cart dans variable de session et non variable global ds app.js
+    3. (ok) Retirer paypalId dans la table client
 
     Question (steve):
-    1. concept de session (ex.: login, panier, ...)
+
 
 #ENTÊTE
    
