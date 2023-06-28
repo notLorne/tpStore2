@@ -1,3 +1,8 @@
+
+// Projet: Boutique Ahuntsic
+// Codeurs: Joseph, Isabelle, Mathieu
+// Cours : Programmation Web côté serveur (420-289-AH)
+
 //CONSTANTS
 
 const express = require('express');
@@ -20,7 +25,7 @@ const connection = mysql.createConnection({
 });
 
 const PAYPAL_ID = "ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy";
-const dropDB = true;
+const dropDB = false;
 
 //VARIABLES
 
@@ -168,12 +173,6 @@ app.get('/', (req, res) => {
 });
 
 app.post('/subscribe', (req, res) => {    
-  cryptPassword (req,res);
-});
-
-// Generate a Salt-Hash string with the plain text password. Insert the new client with it
-function cryptPassword (req,res) {
-
   const { prenom, nom, courriel, password } = req.body; 
   const saltRounds = 10;
 
@@ -184,29 +183,37 @@ function cryptPassword (req,res) {
     })
     .then(hash => {
 
-      const query = 'INSERT INTO client (prenom, nom, courriel, password) VALUES (?, ?, ?, ?)';
-      const values = [prenom, nom, courriel, hash];
-
-      connection.query(query, values, (error, results) => {
+      const checkQuery = 'SELECT * FROM client WHERE courriel = ?';
+      const checkValues = [courriel];
+      connection.query(checkQuery, checkValues, (error, results) => {
         if (error) {
-          res.status(500).send("Erreur de création du nouveau client");
+          res.status(500).send("Erreur de vérification de l'adresse e-mail");
         } else {
-          userEmail = courriel;
-          isLoggedIn = true;
-          idClient = results.insertId;
-          res.status(200).redirect("/");
+          if (results.length > 0) {
+            res.redirect("/");
+          } else {
+            const insertQuery = 'INSERT INTO client (prenom, nom, courriel, password) VALUES (?, ?, ?, ?)';
+            const insertValues = [prenom, nom, courriel, hash];
+    
+            connection.query(insertQuery, insertValues, (error, insertResults) => {
+    
+              if (error) {
+                res.status(500).send("Erreur de création du nouveau client");
+              } else {
+                userEmail = courriel;
+                isLoggedIn = true;
+                idClient = insertResults.insertId;
+                res.status(200).redirect("/");
+              }
+            });
+          }
         }
       });
     })
     .catch(err => console.error(err.message));
-}
-
-app.post('/login', (req, res) => {
-  decryptPassword (req, res);  
 });
 
-function decryptPassword (req, res) {
-
+app.post('/login', (req, res) => {
   const { email, passwordLog } = req.body;
 
   connection.query(
@@ -259,8 +266,8 @@ function decryptPassword (req, res) {
         })
         .catch(err => console.error(err.message));     
     }
-  );
-}
+  ); 
+});
 
 app.post('/logout', (req, res) => {
   isLoggedIn = false;
