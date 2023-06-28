@@ -7,6 +7,7 @@
 #PRENEZ NOTE
 
     For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="paypal123" for approval
+    Dépot github publique: https://github.com/notLorne/tpStore2
 
 #LANCER L'APPLICATION
 
