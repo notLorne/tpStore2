@@ -7,6 +7,7 @@ const uuid = require('uuid');
 const mysql = require('mysql');
 const app = express();
 const path = require('path');
+const bcrypt = require("bcrypt");
 
 const secret = uuid.v4();
 const port = 3000;
@@ -18,16 +19,8 @@ const connection = mysql.createConnection({
   password: 'test'
 });
 
-// TO REMOVE
-// const connection = mysql.createConnection({
-//   host: 'localhost',
-//   port: 3306,
-//   user: 'tp_account_1',
-//   password: 'test',
-//   database: 'db_store'
-// });
-
 const PAYPAL_ID = "ARPofou01ye9ITplB8G5bhwHFmmh-ltmsK9nFXQccx2-RaYllLEEnQC4exqwJZInh-h7p0YGF9GXaVhy";
+const dropDB = true;
 
 //VARIABLES
 
@@ -38,7 +31,7 @@ let idClient = "none";
 //TABLES DEFINITIONS
 
 //DEL + CREATE + USE
-// const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';
+const deleteSchemaQuery = 'DROP SCHEMA IF EXISTS db_store;';
 const createSchemaQuery = 'CREATE SCHEMA IF NOT EXISTS db_store ;';
 const useSchemaQuery = 'USE db_store;';
 
@@ -48,7 +41,7 @@ const createClientTable = `
     nom VARCHAR(32),
     prenom VARCHAR(24),
     courriel VARCHAR(96),
-    password VARCHAR(32),
+    password VARCHAR(200),
     status BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (id_client)
   );
@@ -57,16 +50,9 @@ const createClientTable = `
 const createClientAccounts = `
   INSERT IGNORE INTO client (id_client, nom, prenom, courriel, password, status)
   VALUES
-    (1, 'Tremblay', 'Jean', 'email1@example.com', 'password1', FALSE),
-    (2, 'Gagnon', 'Marie', 'email2@example.com', 'password2', FALSE),
-    (3, 'Roy', 'Claude', 'email3@example.com', 'password3', FALSE),
-    (4, 'Côté', 'Yvonne', 'email4@example.com', 'password4', FALSE),
-    (5, 'Bélanger', 'Pierre', 'email5@example.com', 'password5', FALSE),
-    (6, 'Leblanc', 'Simone', 'email6@example.com', 'password6', FALSE),
-    (7, 'Gauthier', 'Jacques', 'email7@example.com', 'password7', FALSE),
-    (8, 'Lavoie', 'Louise', 'email8@example.com', 'password8', FALSE),
-    (9, 'Beaudoin', 'René', 'email9@example.com', 'password9', FALSE),
-    (10, 'Bergeron', 'Cécile', 'email10@example.com', 'password10', FALSE);
+    (1, 'Tremblay', 'Jean', 'email1@example.com', '$2b$10$PZTKfTaCfqvEPOdJ/1Zg1eU45rB6AFUoyJ1lpf7GgiE2tvBpNQkSS', FALSE),
+    (2, 'Gagnon', 'Marie', 'email2@example.com', '$2b$10$O/W3ZXSoqZOuv8b6Qq9Wk.5E.CDGA9rjsaJ7xd8hrrnibqQhtzs5q', FALSE),
+    (3, 'Roy', 'Claude', 'email3@example.com', '$2b$10$wUuaPmcapmnWKDCb5sn1suqd1ACTL0VHfXOUXRMQ6YgEC3kAxMx4.', FALSE);
 `;
 
 const createProduitTable = `
@@ -181,15 +167,45 @@ app.get('/', (req, res) => {
   });
 });
 
-app.post('/logout', (req, res) => {
-  isLoggedIn = false;
-  userEmail = "none";
-  idClient = "none";
-  req.session.cart = [];
-  res.status(200).redirect("/");
+app.post('/subscribe', (req, res) => {    
+  cryptPassword (req,res);
 });
 
+// Generate a Salt-Hash string with the plain text password. Insert the new client with it
+function cryptPassword (req,res) {
+
+  const { prenom, nom, courriel, password } = req.body; 
+  const saltRounds = 10;
+
+  bcrypt
+    .genSalt(saltRounds)
+    .then(salt => {
+      return bcrypt.hash(password, salt);      
+    })
+    .then(hash => {
+
+      const query = 'INSERT INTO client (prenom, nom, courriel, password) VALUES (?, ?, ?, ?)';
+      const values = [prenom, nom, courriel, hash];
+
+      connection.query(query, values, (error, results) => {
+        if (error) {
+          res.status(500).send("Erreur de création du nouveau client");
+        } else {
+          userEmail = courriel;
+          isLoggedIn = true;
+          idClient = results.insertId;
+          res.status(200).redirect("/");
+        }
+      });
+    })
+    .catch(err => console.error(err.message));
+}
+
 app.post('/login', (req, res) => {
+  decryptPassword (req, res);  
+});
+
+function decryptPassword (req, res) {
 
   const { email, passwordLog } = req.body;
 
@@ -211,38 +227,58 @@ app.post('/login', (req, res) => {
 
       const client = results[0];
 
-      if (client.password !== passwordLog) {
-        res.status(401).send('Mot de passe ou courriel invalide');
-        return;
-      }
-
-      connection.query(
-        'UPDATE client SET status = ? WHERE id_client = ?',
-        [true, client.id_client],
-        (error) => {
-          if (error) {
-            console.error("Impossible de mettre a jour le compte client : ", error);
-            res.sendStatus(500);
+      bcrypt
+        .compare(passwordLog, client.password)
+        .then(response => {
+          
+          if (!response) {
+            res.status(401).send('Mot de passe ou courriel invalide');
             return;
-          } else {
-            
-            isLoggedIn = true;
-            userEmail = client.courriel;
-            idClient = client.id_client;
-            
-            res.redirect("/");
 
+          } else {
+          
+            connection.query(
+              'UPDATE client SET status = ? WHERE id_client = ?',
+              [true, client.id_client],
+              (error) => {
+                if (error) {
+                  console.error("Impossible de mettre a jour le compte client : ", error);
+                  res.sendStatus(500);
+                  return;
+                } else {                  
+                  isLoggedIn = true;
+                  userEmail = client.courriel;
+                  idClient = client.id_client;
+                  
+                  res.redirect("/");      
+                }
+              }
+            );
           }
-        }
-      );
+         
+        })
+        .catch(err => console.error(err.message));     
     }
   );
+}
+
+app.post('/logout', (req, res) => {
+  isLoggedIn = false;
+  userEmail = "none";
+  idClient = "none";
+  req.session.cart = [];
+  res.status(200).redirect("/");
 });
 
 app.post('/cart/add', function(req, res) {
   const { id_produit, quantity, price} = req.body;
   req.session.cart.push({ id_produit, quantity, price });
   res.status(200).send('Item ajoute au panier.');
+});
+
+app.delete('/cart', function(req, res) {
+  req.session.cart = [];
+  res.status(200).send('Panier effacer');
 });
 
 app.post('/order', function(req, res) {
@@ -272,28 +308,6 @@ app.post('/order', function(req, res) {
   }
 });
 
-app.delete('/cart', function(req, res) {
-    req.session.cart = [];
-    res.status(200).send('Panier effacer');
-});
-
-app.post('/subscribe', (req, res) => {
-  const { prenom, nom, courriel, password } = req.body;  
-  const query = 'INSERT INTO client (prenom, nom, courriel, password) VALUES (?, ?, ?, ?)';
-  const values = [prenom, nom, courriel, password];
-
-  connection.query(query, values, (error, results) => {
-    if (error) {
-      res.status(500).send("Erreur de création du nouveau client");
-    } else {
-      userEmail = courriel;
-      isLoggedIn = true;
-      idClient = results.insertId;
-      res.status(200).redirect("/");
-	  }
-  });
-});
-
 
 //FUNCTIONS
 
@@ -310,11 +324,13 @@ function createDBTable() {
 
     // DEL + CREATE + USE
 
-    // connection.query(deleteSchemaQuery, (err) => {
-    //   if (err) {
-    //     console.error('Impossible de supprimer le schema : ', err);
-    //     return;
-    //   }});
+    if (dropDB) {
+      connection.query(deleteSchemaQuery, (err) => {
+        if (err) {
+          console.error('Impossible de supprimer le schema : ', err);
+          return;
+        }});
+    }
     
     connection.query(createSchemaQuery, (err) => {
       if (err) {

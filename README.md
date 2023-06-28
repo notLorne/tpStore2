@@ -1,7 +1,14 @@
 #PRENEZ NOTE
 
     For development purpose use paypal account: user="sb-fyyzh26379554@personal.example.com" password="paypal123" for approval
-    Voir TO DO...
+    Avant présentation: 
+        - Mettre dropDB=false
+        - Et faire le cycle de vie de l'app 1 fois ou deux 
+   
+    TO DO important
+        - Lors d'une erreur de client ou de mot de passe au Login on sort de la loop normal, il faudrait faire un redirect("/") aussi
+
+    Voir autre TO DO...
  
 #GIT INSTRUCTIONS FOR UPDATE FROM MAIN
 
@@ -76,18 +83,18 @@
     TO REMOVE indique que ça doit être retirer avant la mise en prod
 
     13. Il est possible de créer deux clients identique présentement. Un client avec le même email ne devrait pas pouvoir être créé
-    1. Améliorer l'aspect visuel global (ex: les modal,...)
-    6. Question bonus?
-    8. (m) Relire le pdf du tp2 s'assurer qu'on répond bien à tout
-    9. Comment recupéré le texte d'un res.status(...).send("texte")
+    1. Améliorer l'aspect visuel global (ex: les modal,...)    
+    8. Relire le pdf du tp2 s'assurer qu'on répond bien à tout
     10. Indice sur le bouton Panier compteur d'items
-    12. Regarder bouton paypal erreur: b.sbox.stats.paypal.com/v2/counter.cgi?p=uid_8ddcb4ced1_mde6mde6mdm&s=SMART_PAYMENT_BUTTONS:1     GET https://b.sbox.stats.paypal.com/v2/counter.cgi?p=uid_8ddcb4ced1_mde6mde6mdm&s=SMART_PAYMENT_BUTTONS net::ERR_CONNECTION_TIMED_OUT
 
+    6. (ok) Question bonus? Salt-Hash
     2. (ok) Éventuellement, ne plus détruire le BD au complet car on pert les commandes et les nouveaux clients  
     11.(ok) S'inscrire ne devrait plus être disponible quand on est login
     5. (ok) Logout?
     0. (ok) cart dans variable de session et non variable global ds app.js
     3. (ok) Retirer paypalId dans la table client
+
+    12. (pas ok mais pas grave) Regarder bouton paypal erreur: b.sbox.stats.paypal.com/v2/counter.cgi?p=uid_8ddcb4ced1_mde6mde6mdm&s=SMART_PAYMENT_BUTTONS:1     GET https://b.sbox.stats.paypal.com/v2/counter.cgi?p=uid_8ddcb4ced1_mde6mde6mdm&s=SMART_PAYMENT_BUTTONS net::ERR_CONNECTION_TIMED_OUT
 
     Question (steve):
 
